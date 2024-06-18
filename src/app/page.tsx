@@ -1,95 +1,46 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import React from 'react'
+import './globals.css'
+import Nav from './components/Nav/Nav'
+import Search from './components/Search/Search'
+import Filter from './components/Filter/Filter'
+import Sidebar from './components/Sidebar/Sidebar'
+import Player from './components/Player/Player'
+import Volume from './components/Volume/Volume'
+import Playlist from './components/Playlist/Playlist'
+import { Montserrat } from 'next/font/google'
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+const montserrat = Montserrat({
+	subsets: ['cyrillic', 'latin'],
+	weight: ['400', '500', '600', '700'],
+})
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+function App() {
+	return (
+		<div className={`wrapper ${montserrat.className}`}>
+			<div className='container'>
+				<main className='main'>
+					<Nav />
+					<div className='main__centerblock centerblock'>
+						<Search />
+						<h2 className='centerblock__h2'>Треки</h2>
+						<Filter />
+						<Playlist />
+					</div>
+					<Sidebar />
+				</main>
+				<div className='bar'>
+					<div className='bar__content'>
+						<div className='bar__player-progress'></div>
+						<div className='bar__player-block'>
+							<Player />
+							<Volume />
+						</div>
+					</div>
+				</div>
+				<footer className='footer'></footer>
+			</div>
+		</div>
+	)
 }
+
+export default App
