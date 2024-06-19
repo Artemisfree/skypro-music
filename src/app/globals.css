@@ -89,7 +89,7 @@ body {
   display: -ms-flexbox;
   display: flex;
   -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
   justify-content: space-between;
@@ -101,11 +101,6 @@ body {
   -ms-flex-positive: 3;
   flex-grow: 3;
   padding: 20px 40px 20px 111px;
-}
-
-.main__sidebar {
-  max-width: 418px;
-  padding: 20px 90px 20px 78px;
 }
 
 .centerblock__h2 {
