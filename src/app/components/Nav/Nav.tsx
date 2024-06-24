@@ -1,8 +1,16 @@
-import React from 'react'
+'use client';
+
+import React, { useState } from 'react'
 import Image from 'next/image'
 import styles from './Nav.module.css'
 
 const Nav = () => {
+	const [menuOpen, setMenuOpen] = useState(false)
+
+	const toggleMenu = () => {
+		setMenuOpen(!menuOpen)
+	}
+
 	return (
 		<nav className={styles.main__nav}>
 			<div className={styles.nav__logo}>
@@ -14,12 +22,16 @@ const Nav = () => {
 					height={17}
 				/>
 			</div>
-			<div className={styles.nav__burger}>
+			<div className={styles.nav__burger} onClick={toggleMenu}>
 				<span className={styles.burger__line}></span>
 				<span className={styles.burger__line}></span>
 				<span className={styles.burger__line}></span>
 			</div>
-			<div className={styles.nav__menu}>
+			<div
+				className={`${styles.nav__menu} ${
+					menuOpen ? styles.nav__menu_open : ''
+				}`}
+			>
 				<ul className={styles.menu__list}>
 					<li className={styles.menu__item}>
 						<a href='#' className={styles.menu__link}>

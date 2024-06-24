@@ -28,8 +28,55 @@
   border: 1px solid #ffffff;
   border-radius: 60px;
   padding: 6px 20px;
+  cursor: pointer;
 }
 
 .filter__button:not(:last-child) {
   margin-right: 10px;
+}
+
+.filter__dropdown {
+  background-color: #313131;
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  z-index: 10;
+  display: none;
+}
+
+.filter__button.active .filter__dropdown {
+  display: block;
+}
+
+.dropdown_performer,
+.dropdown_year,
+.dropdown_genre {
+  width: 200px;
+}
+
+.filter__item {
+  font-size: 14px;
+  color: #ffffff;
+  padding: 5px 0;
+  cursor: pointer;
+}
+
+.filter__item:hover {
+  color: #B672FF;
+  text-decoration: underline;
+}
+
+.filter__button:hover,
+.filter__button:active,
+.filter__button.active {
+  border-color: #B672FF;
+  color: #B672FF;
+}
+
+.filter__dropdown.active {
+  display: block;
 }

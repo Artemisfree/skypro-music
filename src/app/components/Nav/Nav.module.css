@@ -19,11 +19,16 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .nav__menu {
-  display: block;
+  display: none;
   visibility: visible;
+}
+
+.nav__menu_open {
+  display: block; /* Показать меню при открытии */
 }
 
 .logo__image {

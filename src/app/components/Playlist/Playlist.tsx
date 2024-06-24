@@ -1,7 +1,36 @@
-import React from 'react'
+'use client';
+
+import React, { useEffect, useState } from 'react'
+import { getAllTracks } from '@/app/api'
 import styles from './Playlist.module.css'
 
-const Playlist = () => {
+const Playlist: React.FC = () => {
+	const [tracks, setTracks] = useState([])
+	const [error, setError] = useState<string | null>(null)
+
+	useEffect(() => {
+		const fetchTracks = async () => {
+			try {
+				const data = await getAllTracks()
+				setTracks(data)
+			} catch (error) {
+				setError('Не удалось загрузить треки. Пожалуйста, попробуйте позже.')
+			}
+		}
+
+		fetchTracks()
+	}, [])
+
+	const formatDuration = (seconds: number) => {
+		const minutes = Math.floor(seconds / 60)
+		const remainingSeconds = seconds % 60
+		return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`
+	}
+
+	if (error) {
+		return <div>{error}</div>
+	}
+
 	return (
 		<div className={styles.centerblock__content}>
 			<div className={styles.content__title}>
@@ -15,8 +44,8 @@ const Playlist = () => {
 				</div>
 			</div>
 			<div className={styles.content__playlist}>
-				<div className={styles.playlist__item}>
-					<div className={styles.playlist__track}>
+				{tracks.map(track => (
+					<div className={styles.playlist__track} key={track.id}>
 						<div className={styles.track__title}>
 							<div className={styles.track__title_image}>
 								<svg className={styles.track__title_svg}>
@@ -25,118 +54,31 @@ const Playlist = () => {
 							</div>
 							<div className={styles.track__title_text}>
 								<a className={styles.track__title_link} href='http://'>
-									Guilt <span className={styles.track__title_span}></span>
+									{track.name}{' '}
+									<span className={styles.track__title_span}></span>
 								</a>
 							</div>
 						</div>
 						<div className={styles.track__author}>
 							<a className={styles.track__author_link} href='http://'>
-								Nero
+								{track.author}
 							</a>
 						</div>
 						<div className={styles.track__album}>
 							<a className={styles.track__album_link} href='http://'>
-								Welcome Reality
+								{track.album}
 							</a>
 						</div>
 						<div className={styles.track__time}>
 							<svg className={styles.track__time_svg}>
 								<use xlinkHref='img/icon/sprite.svg#icon-like'></use>
 							</svg>
-							<span className={styles.track__time_text}>4:44</span>
+							<span className={styles.track__time_text}>
+								{formatDuration(track.duration_in_seconds)}
+							</span>
 						</div>
 					</div>
-					<div className={styles.playlist__track}>
-						<div className={styles.track__title}>
-							<div className={styles.track__title_image}>
-								<svg className={styles.track__title_svg}>
-									<use xlinkHref='img/icon/sprite.svg#icon-note'></use>
-								</svg>
-							</div>
-							<div className={styles.track__title_text}>
-								<a className={styles.track__title_link} href='http://'>
-									Elektro <span className={styles.track__title_span}></span>
-								</a>
-							</div>
-						</div>
-						<div className={styles.track__author}>
-							<a className={styles.track__author_link} href='http://'>
-								Dynoro, Outwork, Mr. Gee
-							</a>
-						</div>
-						<div className={styles.track__album}>
-							<a className={styles.track__album_link} href='http://'>
-								Elektro
-							</a>
-						</div>
-						<div className={styles.track__time}>
-							<svg className={styles.track__time_svg}>
-								<use xlinkHref='img/icon/sprite.svg#icon-like'></use>
-							</svg>
-							<span className={styles.track__time_text}>2:22</span>
-						</div>
-					</div>
-					<div className={styles.playlist__track}>
-						<div className={styles.track__title}>
-							<div className={styles.track__title_image}>
-								<svg className={styles.track__title_svg}>
-									<use xlinkHref='img/icon/sprite.svg#icon-note'></use>
-								</svg>
-							</div>
-							<div className={styles.track__title_text}>
-								<a className={styles.track__title_link} href='http://'>
-									I’m Fire <span className={styles.track__title_span}></span>
-								</a>
-							</div>
-						</div>
-						<div className={styles.track__author}>
-							<a className={styles.track__author_link} href='http://'>
-								Ali Bakgor
-							</a>
-						</div>
-						<div className={styles.track__album}>
-							<a className={styles.track__album_link} href='http://'>
-								I’m Fire
-							</a>
-						</div>
-						<div className={styles.track__time}>
-							<svg className={styles.track__time_svg}>
-								<use xlinkHref='img/icon/sprite.svg#icon-like'></use>
-							</svg>
-							<span className={styles.track__time_text}>2:22</span>
-						</div>
-					</div>
-					<div className={styles.playlist__track}>
-						<div className={styles.track__title}>
-							<div className={styles.track__title_image}>
-								<svg className={styles.track__title_svg}>
-									<use xlinkHref='img/icon/sprite.svg#icon-note'></use>
-								</svg>
-							</div>
-							<div className={styles.track__title_text}>
-								<a className={styles.track__title_link} href='http://'>
-									Non Stop <span className={styles.track__title_span}></span>
-								</a>
-							</div>
-						</div>
-						<div className={styles.track__author}>
-							<a className={styles.track__author_link} href='http://'>
-								Стоункат, Psychopath
-							</a>
-						</div>
-						<div className={styles.track__album}>
-							<a className={styles.track__album_link} href='http://'>
-								Non Stop
-							</a>
-						</div>
-						<div className={styles.track__time}>
-							<svg className={styles.track__time_svg}>
-								<use xlinkHref='img/icon/sprite.svg#icon-like'></use>
-							</svg>
-							<span className={styles.track__time_text}>4:12</span>
-						</div>
-					</div>
-				</div>
+				))}
 			</div>
 		</div>
 	)

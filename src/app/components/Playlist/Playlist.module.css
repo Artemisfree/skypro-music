@@ -178,6 +178,11 @@
   color: #696969;
 }
 
+.track__time {
+  display: flex;
+  align-items: center;
+}
+
 .track__time_svg {
   width: 14px;
   height: 12px;
