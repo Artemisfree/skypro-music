@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './Volume.module.css'
 
-const Volume = () => {
+const Volume: React.FC = () => {
 	return (
 		<div className={styles.bar__volume_block}>
 			<div className={styles.volume__content}>

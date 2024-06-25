@@ -2,7 +2,7 @@ import React from 'react'
 import styles from './Search.module.css'
 
 
-const Search = () => {
+const Search: React.FC = () => {
 	return (
 		<div className={styles.centerblock__search}>
 			<svg className={styles.search__svg}>

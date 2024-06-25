@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import styles from './Sidebar.module.css'
 
-const Sidebar = () => {
+const Sidebar: React.FC = () => {
 	return (
 		<div className={styles.main__sidebar}>
 			<div className={styles.sidebar__personal}>
@@ -23,6 +23,7 @@ const Sidebar = () => {
 								alt="day's playlist"
 								width={250}
 								height={170}
+								priority
 							/>
 						</a>
 					</div>

@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './Player.module.css'
 
-const Player = () => {
+const Player: React.FC = () => {
 	return (
 		<div className={styles.bar__player}>
 			<div className={styles.player__controls}>

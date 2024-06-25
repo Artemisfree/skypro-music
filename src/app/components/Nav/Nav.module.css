@@ -24,11 +24,12 @@
 
 .nav__menu {
   display: none;
-  visibility: visible;
+  visibility: hidden;
 }
 
 .nav__menu_open {
-  display: block; /* Показать меню при открытии */
+  display: block;
+  visibility: visible;
 }
 
 .logo__image {

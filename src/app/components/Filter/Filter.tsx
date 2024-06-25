@@ -1,16 +1,30 @@
-'use client';
+'use client'
 
-import React, { useState, useEffect } from 'react';
-import { getAllTracks } from '@/app/api';
-import styles from './Filter.module.css';
+import React, { useState, useEffect, MouseEvent } from 'react'
+import { getAllTracks } from '@/app/api'
+import styles from './Filter.module.css'
 
-const Filter = () => {
-	const [tracks, setTracks] = useState([])
-	const [uniqueAuthors, setUniqueAuthors] = useState([])
-	const [uniqueGenres, setUniqueGenres] = useState([])
-	const [uniqueYears, setUniqueYears] = useState([])
-	const [activeFilter, setActiveFilter] = useState(null)
-	const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
+interface Track {
+	author: string
+	genre: string
+	release_date: string
+}
+
+interface Position {
+	top: number
+	left: number
+}
+
+const Filter: React.FC = () => {
+	const [tracks, setTracks] = useState<Track[]>([])
+	const [uniqueAuthors, setUniqueAuthors] = useState<string[]>([])
+	const [uniqueGenres, setUniqueGenres] = useState<string[]>([])
+	const [uniqueYears, setUniqueYears] = useState<number[]>([])
+	const [activeFilter, setActiveFilter] = useState<string | null>(null)
+	const [dropdownPosition, setDropdownPosition] = useState<Position>({
+		top: 0,
+		left: 0,
+	})
 
 	useEffect(() => {
 		const fetchTracks = async () => {
@@ -26,10 +40,10 @@ const Filter = () => {
 		fetchTracks()
 	}, [])
 
-	const extractUniqueValues = tracks => {
-		const authors = new Set()
-		const genres = new Set()
-		const years = new Set()
+	const extractUniqueValues = (tracks: Track[]) => {
+		const authors = new Set<string>()
+		const genres = new Set<string>()
+		const years = new Set<number>()
 
 		tracks.forEach(track => {
 			authors.add(track.author)
@@ -43,7 +57,10 @@ const Filter = () => {
 		setUniqueYears(Array.from(years).sort((a, b) => a - b))
 	}
 
-	const handleFilterClick = (filter, event) => {
+	const handleFilterClick = (
+		filter: string,
+		event: MouseEvent<HTMLDivElement>
+	) => {
 		const button = event.currentTarget
 		const rect = button.getBoundingClientRect()
 		setDropdownPosition({
@@ -120,4 +137,4 @@ const Filter = () => {
 	)
 }
 
-export default Filter;
+export default Filter

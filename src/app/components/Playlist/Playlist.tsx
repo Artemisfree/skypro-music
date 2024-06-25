@@ -4,8 +4,16 @@ import React, { useEffect, useState } from 'react'
 import { getAllTracks } from '@/app/api'
 import styles from './Playlist.module.css'
 
+interface Track {
+	id: number
+	name: string
+	author: string
+	album: string
+	duration_in_seconds: number
+}
+
 const Playlist: React.FC = () => {
-	const [tracks, setTracks] = useState([])
+	const [tracks, setTracks] = useState<Track[]>([])
 	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
