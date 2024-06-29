@@ -83,6 +83,11 @@
   stroke: #696969;
 }
 
+.player__btn_repeat.active .player__btn_repeat_svg {
+    fill: #ffffff;
+    stroke: #ffffff;
+}
+
 .player__btn_shuffle {
   display: -webkit-box;
   display: -ms-flexbox;

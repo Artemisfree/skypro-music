@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 import styles from './Volume.module.css'
 
-const Volume: React.FC = () => {
+const Volume: React.FC<{
+	volume: number
+	onVolumeChange: (event: ChangeEvent<HTMLInputElement>) => void
+}> = ({ volume, onVolumeChange }) => {
 	return (
 		<div className={styles.bar__volume_block}>
 			<div className={styles.volume__content}>
@@ -15,6 +18,11 @@ const Volume: React.FC = () => {
 						className={styles.volume__progress_line}
 						type='range'
 						name='range'
+						min='0'
+						max='1'
+						step='0.01'
+						value={volume}
+						onChange={onVolumeChange}
 					/>
 				</div>
 			</div>

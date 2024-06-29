@@ -4,10 +4,10 @@ import Nav from './components/Nav/Nav'
 import Search from './components/Search/Search'
 import Filter from './components/Filter/Filter'
 import Sidebar from './components/Sidebar/Sidebar'
-import Player from './components/Player/Player'
-import Volume from './components/Volume/Volume'
 import Playlist from './components/Playlist/Playlist'
 import { Montserrat } from 'next/font/google'
+import { CurrentTrackProvider, useCurrentTrack } from '@/contexts/CurrentTrackProvider'
+import { Bar } from './components/Bar/Bar'
 
 const montserrat = Montserrat({
 	subsets: ['cyrillic', 'latin'],
@@ -18,25 +18,19 @@ function App() {
 	return (
 		<div className={`wrapper ${montserrat.className}`}>
 			<div className='container'>
-				<main className='main'>
-					<Nav />
-					<div className='main__centerblock centerblock'>
-						<Search />
-						<h2 className='centerblock__h2'>Треки</h2>
-						<Filter />
-						<Playlist />
-					</div>
-					<Sidebar />
-				</main>
-				<div className='bar'>
-					<div className='bar__content'>
-						<div className='bar__player-progress'></div>
-						<div className='bar__player-block'>
-							<Player />
-							<Volume />
+				<CurrentTrackProvider>
+					<main className='main'>
+						<Nav />
+						<div className='main__centerblock centerblock'>
+							<Search />
+							<h2 className='centerblock__h2'>Треки</h2>
+							<Filter />
+							<Playlist />
 						</div>
-					</div>
-				</div>
+						<Sidebar />
+					</main>
+					<Bar />
+				</CurrentTrackProvider>
 				<footer className='footer'></footer>
 			</div>
 		</div>

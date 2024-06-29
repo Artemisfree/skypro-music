@@ -1,31 +1,75 @@
 import React from 'react'
 import styles from './Player.module.css'
 
-const Player: React.FC = () => {
+type TrackPlayProps = {
+	name: string
+	author: string
+	isPlaying: boolean
+	togglePlay: () => void
+	isRepeat: boolean
+	setIsRepeat: (value: boolean) => void
+}
+
+const Player: React.FC<TrackPlayProps> = ({
+	name,
+	author,
+	isPlaying,
+	togglePlay,
+	isRepeat,
+	setIsRepeat,
+}) => {
+	const handleNotImplemented = (message: string) => {
+		alert(message)
+	}
+
+	const toggleRepeat = () => {
+		setIsRepeat(!isRepeat)
+	}
+
 	return (
 		<div className={styles.bar__player}>
 			<div className={styles.player__controls}>
-				<div className={styles.player__btn_prev}>
+				<div
+					className={styles.player__btn_prev}
+					onClick={() => handleNotImplemented('Еще не реализовано')}
+				>
 					<svg className={styles.player__btn_prev_svg}>
 						<use xlinkHref='/img/icon/sprite.svg#icon-prev'></use>
 					</svg>
 				</div>
-				<div className={`${styles.player__btn_play} _btn`}>
+				<div className={`${styles.player__btn_play} _btn`} onClick={togglePlay}>
 					<svg className={styles.player__btn_play_svg}>
-						<use xlinkHref='/img/icon/sprite.svg#icon-play'></use>
+						<use
+							xlinkHref={
+								isPlaying
+									? '/img/icon/sprite.svg#icon-pause'
+									: '/img/icon/sprite.svg#icon-play'
+							}
+						></use>
 					</svg>
 				</div>
-				<div className={styles.player__btn_next}>
+				<div
+					className={styles.player__btn_next}
+					onClick={() => handleNotImplemented('Еще не реализовано')}
+				>
 					<svg className={styles.player__btn_next_svg}>
 						<use xlinkHref='/img/icon/sprite.svg#icon-next'></use>
 					</svg>
 				</div>
-				<div className={`${styles.player__btn_repeat} _btn-icon`}>
+				<div
+					className={`${styles.player__btn_repeat} _btn-icon ${
+						isRepeat ? styles.active : ''
+					}`}
+					onClick={toggleRepeat}
+				>
 					<svg className={styles.player__btn_repeat_svg}>
 						<use xlinkHref='img/icon/sprite.svg#icon-repeat'></use>
 					</svg>
 				</div>
-				<div className={`${styles.player__btn_shuffle} _btn-icon`}>
+				<div
+					className={`${styles.player__btn_shuffle} _btn-icon`}
+					onClick={() => handleNotImplemented('Еще не реализовано')}
+				>
 					<svg className={styles.player__btn_shuffle_svg}>
 						<use xlinkHref='img/icon/sprite.svg#icon-shuffle'></use>
 					</svg>
@@ -41,12 +85,12 @@ const Player: React.FC = () => {
 					</div>
 					<div className={styles.track_play__author}>
 						<a className={styles.track_play__author_link} href='http://'>
-							Ты та...
+							{name}
 						</a>
 					</div>
 					<div className={styles.track_play__album}>
 						<a className={styles.track_play__album_link} href='http://'>
-							Баста
+							{author}
 						</a>
 					</div>
 				</div>

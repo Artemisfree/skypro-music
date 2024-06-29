@@ -3,18 +3,25 @@
 import React, { useEffect, useState } from 'react'
 import { getAllTracks } from '@/app/api'
 import styles from './Playlist.module.css'
+import { useCurrentTrack } from '@/contexts/CurrentTrackProvider';
 
-interface Track {
+export interface Track {
 	id: number
 	name: string
 	author: string
 	album: string
 	duration_in_seconds: number
+	track_file: string
 }
 
 const Playlist: React.FC = () => {
 	const [tracks, setTracks] = useState<Track[]>([])
 	const [error, setError] = useState<string | null>(null)
+	const { setCurrentTrack } = useCurrentTrack()
+
+	const handleTrackClick = (track: Track) => {
+		setCurrentTrack(track);
+	};
 
 	useEffect(() => {
 		const fetchTracks = async () => {
@@ -53,7 +60,11 @@ const Playlist: React.FC = () => {
 			</div>
 			<div className={styles.content__playlist}>
 				{tracks.map(track => (
-					<div className={styles.playlist__track} key={track.id}>
+					<div
+						className={styles.playlist__track}
+						key={track.id}
+						onClick={() => handleTrackClick(track)}
+					>
 						<div className={styles.track__title}>
 							<div className={styles.track__title_image}>
 								<svg className={styles.track__title_svg}>
