@@ -201,3 +201,30 @@
   text-align: right;
   color: #696969;
 }
+
+.pulsingDot {
+  width: 16px;
+  height: 16px;
+  background-color: #B672FF;
+  border-radius: 50%;
+  animation: pulsing 1s infinite;
+}
+
+@keyframes pulsing {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.staticDot {
+  width: 16px;
+  height: 16px;
+  background-color: #B672FF;
+  border-radius: 50%;
+}

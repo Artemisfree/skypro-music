@@ -1,15 +1,22 @@
 'use client'
-import { useCurrentTrack } from "@/contexts/CurrentTrackProvider";
+
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '@/store/store'
 import Player from "../Player/Player";
 import Volume from "../Volume/Volume";
 import styles from './Bar.module.css';
 import { useState, useRef, ChangeEvent, useEffect } from "react";
+import { playTrack, pauseTrack } from '@/store/features/currentTrackSlice'
 
 export function Bar() {
-    const {currentTrack} = useCurrentTrack();
+    const { currentTrack, isPlaying } = useSelector(
+			(state: RootState) => state.currentTrack
+		)
+    const { tracks } = useSelector((state: RootState) => state.playlist)
+    const dispatch = useDispatch()
     const [currentTime, setCurrentTime] = useState(0)
-	const [isPlaying, setIsPlaying] = useState(false)
     const [isRepeat, setIsRepeat] = useState(false)
+    const [isShuffle, setIsShuffle] = useState(false)
     const [volume, setVolume] = useState(1)
 
 	const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -17,10 +24,11 @@ export function Bar() {
 
     useEffect(() => {
 		if (audioRef.current && currentTrack) {
+			audioRef.current.src = currentTrack.track_file
 			audioRef.current.play()
-			setIsPlaying(true)
+			dispatch(playTrack())
 		}
-	}, [currentTrack])
+	}, [currentTrack, dispatch])
 
     useEffect(() => {
 		const handleEnded = () => {
@@ -54,10 +62,11 @@ export function Bar() {
 		if (audioRef.current) {
 			if (isPlaying) {
 				audioRef.current.pause()
+				dispatch(pauseTrack())
 			} else {
 				audioRef.current.play()
+				dispatch(playTrack())
 			}
-			setIsPlaying(prev => !prev)
 		}
 	}
     
@@ -98,6 +107,10 @@ export function Bar() {
 							togglePlay={togglePlay}
 							isRepeat={isRepeat}
 							setIsRepeat={setIsRepeat}
+							isShuffle={isShuffle}
+							setIsShuffle={setIsShuffle}
+							tracks={tracks}
+							audioRef={audioRef}
 						/>
 						<Volume volume={volume} onVolumeChange={handleVolumeChange} />
 					</div>

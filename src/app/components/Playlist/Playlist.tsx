@@ -3,7 +3,14 @@
 import React, { useEffect, useState } from 'react'
 import { getAllTracks } from '@/app/api'
 import styles from './Playlist.module.css'
-import { useCurrentTrack } from '@/contexts/CurrentTrackProvider';
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
+import {
+	setCurrentTrack,
+	playTrack,
+	pauseTrack,
+} from '@/store/features/currentTrackSlice'
+import { setTracks } from '@/store/features/playlistSlice'
 
 export interface Track {
 	id: number
@@ -15,26 +22,37 @@ export interface Track {
 }
 
 const Playlist: React.FC = () => {
-	const [tracks, setTracks] = useState<Track[]>([])
 	const [error, setError] = useState<string | null>(null)
-	const { setCurrentTrack } = useCurrentTrack()
+	const dispatch = useDispatch()
+	const { currentTrack, isPlaying } = useSelector(
+		(state: RootState) => state.currentTrack
+	)
+	const { tracks } = useSelector((state: RootState) => state.playlist)
 
 	const handleTrackClick = (track: Track) => {
-		setCurrentTrack(track);
-	};
+		if (currentTrack?.id === track.id) {
+			if (isPlaying) {
+				dispatch(pauseTrack())
+			} else {
+				dispatch(playTrack())
+			}
+		} else {
+			dispatch(setCurrentTrack(track))
+		}
+	}
 
 	useEffect(() => {
 		const fetchTracks = async () => {
 			try {
 				const data = await getAllTracks()
-				setTracks(data)
+				dispatch(setTracks(data))
 			} catch (error) {
 				setError('Не удалось загрузить треки. Пожалуйста, попробуйте позже.')
 			}
 		}
 
 		fetchTracks()
-	}, [])
+	}, [dispatch])
 
 	const formatDuration = (seconds: number) => {
 		const minutes = Math.floor(seconds / 60)
@@ -61,15 +79,25 @@ const Playlist: React.FC = () => {
 			<div className={styles.content__playlist}>
 				{tracks.map(track => (
 					<div
-						className={styles.playlist__track}
+						className={`${styles.playlist__track} ${
+							currentTrack?.id === track.id ? styles.currentTrack : ''
+						}`}
 						key={track.id}
 						onClick={() => handleTrackClick(track)}
 					>
 						<div className={styles.track__title}>
 							<div className={styles.track__title_image}>
-								<svg className={styles.track__title_svg}>
-									<use xlinkHref='img/icon/sprite.svg#icon-note'></use>
-								</svg>
+								{currentTrack?.id === track.id ? (
+									<div
+										className={`${
+											isPlaying ? styles.pulsingDot : styles.staticDot
+										}`}
+									></div>
+								) : (
+									<svg className={styles.track__title_svg}>
+										<use xlinkHref='img/icon/sprite.svg#icon-note'></use>
+									</svg>
+								)}
 							</div>
 							<div className={styles.track__title_text}>
 								<a className={styles.track__title_link} href='http://'>

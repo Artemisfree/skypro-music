@@ -1,23 +1,37 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
+import {
+	playTrack,
+	setCurrentTrack,
+} from '@/store/features/currentTrackSlice'
 import styles from './Player.module.css'
+import { Track } from '../Playlist/Playlist'
 
 type TrackPlayProps = {
-	name: string
-	author: string
-	isPlaying: boolean
-	togglePlay: () => void
 	isRepeat: boolean
 	setIsRepeat: (value: boolean) => void
+	togglePlay: () => void
+	isShuffle: boolean
+	setIsShuffle: (value: boolean) => void
+	tracks: Track[]
+	audioRef: React.RefObject<HTMLAudioElement>
 }
 
 const Player: React.FC<TrackPlayProps> = ({
-	name,
-	author,
-	isPlaying,
-	togglePlay,
 	isRepeat,
 	setIsRepeat,
+	togglePlay,
+	isShuffle,
+	setIsShuffle,
+	tracks,
+	audioRef,
 }) => {
+	const dispatch = useDispatch()
+	const { currentTrack, isPlaying } = useSelector(
+		(state: RootState) => state.currentTrack
+	)
+
 	const handleNotImplemented = (message: string) => {
 		alert(message)
 	}
@@ -26,13 +40,103 @@ const Player: React.FC<TrackPlayProps> = ({
 		setIsRepeat(!isRepeat)
 	}
 
+	const toggleShuffle = () => {
+		setIsShuffle(!isShuffle)
+	}
+
+	const handleNextTrack = () => {
+		if (currentTrack) {
+			const currentIndex = tracks.findIndex(
+				track => track.id === currentTrack.id
+			)
+			const nextIndex = isShuffle
+				? Math.floor(Math.random() * tracks.length)
+				: currentIndex + 1
+
+			if (nextIndex < tracks.length) {
+				const nextTrack = tracks[nextIndex]
+				if (nextTrack && nextTrack.track_file) {
+					dispatch(setCurrentTrack(nextTrack))
+
+					const handleCanPlay = () => {
+						audioRef.current?.play()
+						dispatch(playTrack())
+					}
+
+					if (audioRef.current) {
+						audioRef.current.src = nextTrack.track_file
+						audioRef.current.addEventListener('canplay', handleCanPlay)
+
+						return () => {
+							audioRef.current?.removeEventListener('canplay', handleCanPlay)
+						}
+					}
+				} else {
+					console.error(
+						'Следующий трек не определен или отсутствует track_file'
+					)
+				}
+			} else {
+				console.log('Это последний трек')
+			}
+		}
+	}
+
+	const handlePreviousTrack = () => {
+		if (currentTrack) {
+			const currentIndex = tracks.findIndex(
+				track => track.id === currentTrack.id
+			)
+			const previousIndex = isShuffle
+				? Math.floor(Math.random() * tracks.length)
+				: currentIndex + 1
+
+			if (previousIndex >= 0) {
+				const previousTrack = tracks[previousIndex]
+				if (previousTrack && previousTrack.track_file) {
+					dispatch(setCurrentTrack(previousTrack))
+
+					const handleCanPlay = () => {
+						audioRef.current?.play()
+						dispatch(playTrack())
+					}
+
+					if (audioRef.current) {
+						audioRef.current.src = previousTrack.track_file
+						audioRef.current.addEventListener('canplay', handleCanPlay)
+
+						return () => {
+							audioRef.current?.removeEventListener('canplay', handleCanPlay)
+						}
+					}
+				} else {
+					console.error(
+						'Следующий трек не определен или отсутствует track_file'
+					)
+				}
+			} else {
+				console.log('Это первый трек')
+			}
+		}
+	}
+
+	useEffect(() => {
+		const handleEnded = () => {
+			handleNextTrack()
+		}
+
+		const audioElement = audioRef.current
+		audioElement?.addEventListener('ended', handleEnded)
+
+		return () => {
+			audioElement?.removeEventListener('ended', handleEnded)
+		}
+	}, [currentTrack, isShuffle])
+
 	return (
 		<div className={styles.bar__player}>
 			<div className={styles.player__controls}>
-				<div
-					className={styles.player__btn_prev}
-					onClick={() => handleNotImplemented('Еще не реализовано')}
-				>
+				<div className={styles.player__btn_prev} onClick={handlePreviousTrack}>
 					<svg className={styles.player__btn_prev_svg}>
 						<use xlinkHref='/img/icon/sprite.svg#icon-prev'></use>
 					</svg>
@@ -48,10 +152,7 @@ const Player: React.FC<TrackPlayProps> = ({
 						></use>
 					</svg>
 				</div>
-				<div
-					className={styles.player__btn_next}
-					onClick={() => handleNotImplemented('Еще не реализовано')}
-				>
+				<div className={styles.player__btn_next} onClick={handleNextTrack}>
 					<svg className={styles.player__btn_next_svg}>
 						<use xlinkHref='/img/icon/sprite.svg#icon-next'></use>
 					</svg>
@@ -67,8 +168,10 @@ const Player: React.FC<TrackPlayProps> = ({
 					</svg>
 				</div>
 				<div
-					className={`${styles.player__btn_shuffle} _btn-icon`}
-					onClick={() => handleNotImplemented('Еще не реализовано')}
+					className={`${styles.player__btn_shuffle} _btn-icon ${
+						isShuffle ? styles.active : ''
+					}`}
+					onClick={toggleShuffle}
 				>
 					<svg className={styles.player__btn_shuffle_svg}>
 						<use xlinkHref='img/icon/sprite.svg#icon-shuffle'></use>
@@ -85,12 +188,12 @@ const Player: React.FC<TrackPlayProps> = ({
 					</div>
 					<div className={styles.track_play__author}>
 						<a className={styles.track_play__author_link} href='http://'>
-							{name}
+							{currentTrack?.name || 'Трек не выбран'}
 						</a>
 					</div>
 					<div className={styles.track_play__album}>
 						<a className={styles.track_play__album_link} href='http://'>
-							{author}
+							{currentTrack?.author || ''}
 						</a>
 					</div>
 				</div>
