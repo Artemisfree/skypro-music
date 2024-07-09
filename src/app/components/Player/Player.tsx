@@ -32,10 +32,6 @@ const Player: React.FC<TrackPlayProps> = ({
 		(state: RootState) => state.currentTrack
 	)
 
-	const handleNotImplemented = (message: string) => {
-		alert(message)
-	}
-
 	const toggleRepeat = () => {
 		setIsRepeat(!isRepeat)
 	}
@@ -44,41 +40,48 @@ const Player: React.FC<TrackPlayProps> = ({
 		setIsShuffle(!isShuffle)
 	}
 
+	const getNextIndex = (currentIndex: number) => {
+		if (isShuffle) {
+			return Math.floor(Math.random() * tracks.length)
+		} else {
+			return (currentIndex + 1) % tracks.length
+		}
+	}
+
+	const getPreviousIndex = (currentIndex: number) => {
+		if (isShuffle) {
+			return Math.floor(Math.random() * tracks.length)
+		} else {
+			return (currentIndex - 1 + tracks.length) % tracks.length
+		}
+	}
+
+	const playTrackFromIndex = (index: number) => {
+		const track = tracks[index]
+		if (track && track.track_file) {
+			dispatch(setCurrentTrack(track))
+			if (audioRef.current) {
+				const handleCanPlay = () => {
+					audioRef.current?.play()
+					dispatch(playTrack())
+				}
+				audioRef.current.src = track.track_file
+				audioRef.current.addEventListener('canplay', handleCanPlay, {
+					once: true,
+				})
+			}
+		} else {
+			console.error('Трек не определен или отсутствует track_file')
+		}
+	}
+
 	const handleNextTrack = () => {
 		if (currentTrack) {
 			const currentIndex = tracks.findIndex(
 				track => track.id === currentTrack.id
 			)
-			const nextIndex = isShuffle
-				? Math.floor(Math.random() * tracks.length)
-				: currentIndex + 1
-
-			if (nextIndex < tracks.length) {
-				const nextTrack = tracks[nextIndex]
-				if (nextTrack && nextTrack.track_file) {
-					dispatch(setCurrentTrack(nextTrack))
-
-					const handleCanPlay = () => {
-						audioRef.current?.play()
-						dispatch(playTrack())
-					}
-
-					if (audioRef.current) {
-						audioRef.current.src = nextTrack.track_file
-						audioRef.current.addEventListener('canplay', handleCanPlay)
-
-						return () => {
-							audioRef.current?.removeEventListener('canplay', handleCanPlay)
-						}
-					}
-				} else {
-					console.error(
-						'Следующий трек не определен или отсутствует track_file'
-					)
-				}
-			} else {
-				console.log('Это последний трек')
-			}
+			const nextIndex = getNextIndex(currentIndex)
+			playTrackFromIndex(nextIndex)
 		}
 	}
 
@@ -87,42 +90,21 @@ const Player: React.FC<TrackPlayProps> = ({
 			const currentIndex = tracks.findIndex(
 				track => track.id === currentTrack.id
 			)
-			const previousIndex = isShuffle
-				? Math.floor(Math.random() * tracks.length)
-				: currentIndex + 1
-
-			if (previousIndex >= 0) {
-				const previousTrack = tracks[previousIndex]
-				if (previousTrack && previousTrack.track_file) {
-					dispatch(setCurrentTrack(previousTrack))
-
-					const handleCanPlay = () => {
-						audioRef.current?.play()
-						dispatch(playTrack())
-					}
-
-					if (audioRef.current) {
-						audioRef.current.src = previousTrack.track_file
-						audioRef.current.addEventListener('canplay', handleCanPlay)
-
-						return () => {
-							audioRef.current?.removeEventListener('canplay', handleCanPlay)
-						}
-					}
-				} else {
-					console.error(
-						'Следующий трек не определен или отсутствует track_file'
-					)
-				}
-			} else {
-				console.log('Это первый трек')
-			}
+			const previousIndex = getPreviousIndex(currentIndex)
+			playTrackFromIndex(previousIndex)
 		}
 	}
 
 	useEffect(() => {
 		const handleEnded = () => {
-			handleNextTrack()
+			if (isRepeat) {
+				if (audioRef.current) {
+					audioRef.current.currentTime = 0
+					audioRef.current.play()
+				}
+			} else {
+				handleNextTrack()
+			}
 		}
 
 		const audioElement = audioRef.current
@@ -131,7 +113,7 @@ const Player: React.FC<TrackPlayProps> = ({
 		return () => {
 			audioElement?.removeEventListener('ended', handleEnded)
 		}
-	}, [currentTrack, isShuffle])
+	}, [currentTrack, isShuffle, isRepeat])
 
 	return (
 		<div className={styles.bar__player}>
