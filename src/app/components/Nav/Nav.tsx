@@ -3,6 +3,7 @@
 import React, { useState, MouseEvent } from 'react'
 import Image from 'next/image'
 import styles from './Nav.module.css'
+import Link from 'next/link';
 
 const Nav: React.FC = () => {
 	const [menuOpen, setMenuOpen] = useState<boolean>(false)
@@ -31,19 +32,19 @@ const Nav: React.FC = () => {
 				<div className={`${styles.nav__menu} ${styles.nav__menu_open}`}>
 					<ul className={styles.menu__list}>
 						<li className={styles.menu__item}>
-							<a href='#' className={styles.menu__link}>
+							<Link href='/' className={styles.menu__link}>
 								Главное
-							</a>
+							</Link>
 						</li>
 						<li className={styles.menu__item}>
-							<a href='#' className={styles.menu__link}>
+							<Link href='/favorites' className={styles.menu__link}>
 								Мой плейлист
-							</a>
+							</Link>
 						</li>
 						<li className={styles.menu__item}>
-							<a href='../signin.html' className={styles.menu__link}>
+							<Link href='/signin' className={styles.menu__link}>
 								Войти
-							</a>
+							</Link>
 						</li>
 					</ul>
 				</div>

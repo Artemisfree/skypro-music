@@ -1,27 +1,22 @@
 'use client'
-
 import React from 'react'
-import './globals.css'
-import Nav from './components/Nav/Nav'
-import Search from './components/Search/Search'
-import Filter from './components/Filter/Filter'
-import Sidebar from './components/Sidebar/Sidebar'
-import Playlist from './components/Playlist/Playlist'
+import Nav from '../Nav/Nav'
+import Search from '../Search/Search'
+import Filter from '../Filter/Filter'
+import Sidebar from '../Sidebar/Sidebar'
+import '../../globals.css'
 import { Montserrat } from 'next/font/google'
-import {
-	CurrentTrackProvider,
-	useCurrentTrack,
-} from '@/contexts/CurrentTrackProvider'
-import { Bar } from './components/Bar/Bar'
+import { CurrentTrackProvider } from '@/contexts/CurrentTrackProvider'
 import { Provider } from 'react-redux'
 import { store } from '@/store/store'
+import { Bar } from '../Bar/Bar'
 
 const montserrat = Montserrat({
 	subsets: ['cyrillic', 'latin'],
 	weight: ['400', '500', '600', '700'],
 })
 
-function App() {
+function App({ children, title }) {
 	return (
 		<Provider store={store}>
 			<div className={`wrapper ${montserrat.className}`}>
@@ -31,9 +26,10 @@ function App() {
 							<Nav />
 							<div className='main__centerblock centerblock'>
 								<Search />
-								<h2 className='centerblock__h2'>Треки</h2>
+								<h2 className='centerblock__h2'>{title}</h2>
+								{/* {title} */}
 								<Filter />
-								<Playlist />
+								{children}
 							</div>
 							<Sidebar />
 						</main>

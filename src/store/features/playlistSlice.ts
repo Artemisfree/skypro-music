@@ -1,5 +1,5 @@
+import { Track } from '@/types/types'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Track } from '@/app/components/Playlist/Playlist'
 
 interface PlaylistState {
 	tracks: Track[]
@@ -16,8 +16,18 @@ const playlistSlice = createSlice({
 		setTracks(state, action: PayloadAction<Track[]>) {
 			state.tracks = action.payload
 		},
+		updateTrackLikeStatus(state, action: PayloadAction<Track>) {
+			const updatedTrack = action.payload
+			state.tracks = state.tracks.map(track =>
+				track.id === updatedTrack.id ? updatedTrack : track
+			)
+		},
+		removeTrack(state, action: PayloadAction<string>) {
+			state.tracks = state.tracks.filter(track => track.id !== action.payload)
+		},
 	},
 })
 
-export const { setTracks } = playlistSlice.actions
+export const { setTracks, updateTrackLikeStatus, removeTrack } =
+	playlistSlice.actions
 export default playlistSlice.reducer

@@ -1,8 +1,44 @@
 const API_BASE_URL = 'https://skypro-music-api.skyeng.tech/catalog'
+const AUTH_API_URL = 'https://skypro-music-api.skyeng.tech/user'
 
-const handleErrors = (response: Response) => {
+export interface TokenResponse {
+	access: string
+	refresh: string
+}
+
+export async function fetchWithAuth(
+	url: string,
+	options: RequestInit,
+	refresh: string
+): Promise<Response> {
+	let res = await fetch(url, options)
+
+	if (res.status === 401) {
+		try {
+			const newTokens = await refreshToken(refresh)
+			if (!newTokens.access) {
+				throw new Error('Failed to refresh token')
+			}
+			options.headers = {
+				...options.headers,
+				Authorization: `Bearer ${newTokens.access}`,
+			}
+			localStorage.setItem('accessToken', newTokens.access)
+			res = await fetch(url, options)
+		} catch (error) {
+			throw new Error('Token refresh failed')
+		}
+	}
+	if (!res.ok) {
+		throw new Error(res.statusText)
+	}
+	return res
+}
+
+const handleErrors = async (response: Response) => {
 	if (!response.ok) {
-		throw Error(response.statusText)
+		const errorText = await response.text()
+		throw new Error(`${response.status}: ${errorText}`)
 	}
 	return response
 }
@@ -10,7 +46,7 @@ const handleErrors = (response: Response) => {
 export const getAllTracks = async () => {
 	try {
 		const response = await fetch(`${API_BASE_URL}/track/all/`)
-		handleErrors(response)
+		await handleErrors(response)
 		return response.json()
 	} catch (error) {
 		console.error('Ошибка при получении всех треков:', error)
@@ -21,7 +57,7 @@ export const getAllTracks = async () => {
 export const getTrackById = async (id: number) => {
 	try {
 		const response = await fetch(`${API_BASE_URL}/track/${id}`)
-		handleErrors(response)
+		await handleErrors(response)
 		return response.json()
 	} catch (error) {
 		console.error(`Ошибка при получении трека с ID ${id}:`, error)
@@ -29,15 +65,23 @@ export const getTrackById = async (id: number) => {
 	}
 }
 
-export const addTrackToFavorites = async (id: number, accessToken: string) => {
+export const addTrackToFavorites = async (
+	id: number,
+	access: string,
+	refresh: string
+) => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/track/${id}/favorite/`, {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
+		const response = await fetchWithAuth(
+			`${API_BASE_URL}/track/${id}/favorite/`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${access}`,
+				},
 			},
-		})
-		handleErrors(response)
+			refresh
+		)
+		await handleErrors(response)
 		return response.json()
 	} catch (error) {
 		console.error(`Ошибка при добавлении трека с ID ${id} в избранное:`, error)
@@ -47,16 +91,21 @@ export const addTrackToFavorites = async (id: number, accessToken: string) => {
 
 export const removeTrackFromFavorites = async (
 	id: number,
-	accessToken: string
+	access: string,
+	refresh: string
 ) => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/track/${id}/favorite/`, {
-			method: 'DELETE',
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
+		const response = await fetchWithAuth(
+			`${API_BASE_URL}/track/${id}/favorite/`,
+			{
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${access}`,
+				},
 			},
-		})
-		handleErrors(response)
+			refresh
+		)
+		await handleErrors(response)
 		return response.json()
 	} catch (error) {
 		console.error(`Ошибка при удалении трека с ID ${id} из избранного:`, error)
@@ -64,18 +113,102 @@ export const removeTrackFromFavorites = async (
 	}
 }
 
-export const getAllFavoriteTracks = async (accessToken: string) => {
+export const getAllFavoriteTracks = async (
+	access: string,
+	refresh: string
+) => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/track/favorite/all/`, {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
+		const response = await fetchWithAuth(
+			`${API_BASE_URL}/track/favorite/all/`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${access}`,
+				},
 			},
-		})
-		handleErrors(response)
+			refresh
+		)
+		await handleErrors(response)
 		return response.json()
 	} catch (error) {
 		console.error('Ошибка при получении всех избранных треков:', error)
 		throw error
 	}
+}
+
+export const registerUser = async (
+	email: string,
+	password: string,
+	username: string
+) => {
+	try {
+		const response = await fetch(`${AUTH_API_URL}/signup/`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ email, password, username }),
+		})
+		await handleErrors(response)
+		return response.json()
+	} catch (error) {
+		console.error('Ошибка при регистрации пользователя:', error)
+		throw error
+	}
+}
+
+export const loginUser = async (email: string, password: string) => {
+	try {
+		const response = await fetch(`${AUTH_API_URL}/login/`, {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify({ email, password }),
+		})
+		await handleErrors(response)
+		return response.json()
+	} catch (error) {
+		console.error('Ошибка при авторизации пользователя:', error)
+		throw error
+	}
+}
+
+export const getToken = async (email: string, password: string) => {
+	try {
+		const response = await fetch(`${AUTH_API_URL}/token/`, {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify({ email, password }),
+		})
+		await handleErrors(response)
+		return response.json()
+	} catch (error) {
+		console.error('Ошибка при получении токена:', error)
+		throw error
+	}
+}
+
+export const refreshToken = async (refresh: string): Promise<TokenResponse> => {
+	try {
+		const response = await fetch(`${AUTH_API_URL}/token/refresh/`, {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify({ refresh }),
+		})
+		await handleErrors(response)
+		return response.json()
+	} catch (error) {
+		console.error('Ошибка при обновлении токена:', error)
+		throw error
+	}
+}
+
+export const logoutUser = () => {
+	localStorage.removeItem('accessToken')
+	window.location.href = '/'
 }

@@ -1,13 +1,18 @@
 import React from 'react'
 import Image from 'next/image'
 import styles from './Sidebar.module.css'
+import { logoutUser } from '@/app/api'
 
 const Sidebar: React.FC = () => {
+	const handleLogout = () => {
+		logoutUser()
+	}
+
 	return (
 		<div className={styles.main__sidebar}>
 			<div className={styles.sidebar__personal}>
-				<p className={styles.sidebar__personal_name}>Sergey.Ivanov</p>
-				<div className={styles.sidebar__icon}>
+				<p className={styles.sidebar__personal_name}>username</p>
+				<div className={styles.sidebar__icon} onClick={handleLogout}>
 					<svg>
 						<use xlinkHref='/img/icon/sprite.svg#logout'></use>
 					</svg>

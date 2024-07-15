@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
-import {
-	playTrack,
-	setCurrentTrack,
-} from '@/store/features/currentTrackSlice'
+import { playTrack, setCurrentTrack } from '@/store/features/currentTrackSlice'
 import styles from './Player.module.css'
-import { Track } from '../Playlist/Playlist'
+import { addTrackToFavorites, removeTrackFromFavorites } from '@/app/api'
+import { updateTrackLikeStatus } from '@/store/features/playlistSlice'
+import { Track } from '@/types/types'
 
 type TrackPlayProps = {
 	isRepeat: boolean
@@ -16,6 +15,14 @@ type TrackPlayProps = {
 	setIsShuffle: (value: boolean) => void
 	tracks: Track[]
 	audioRef: React.RefObject<HTMLAudioElement>
+}
+
+const getAccessToken = (): string | null => {
+	return localStorage.getItem('accessToken')
+}
+
+const getRefreshToken = (): string | null => {
+	return localStorage.getItem('refreshToken')
 }
 
 const Player: React.FC<TrackPlayProps> = ({
@@ -31,6 +38,48 @@ const Player: React.FC<TrackPlayProps> = ({
 	const { currentTrack, isPlaying } = useSelector(
 		(state: RootState) => state.currentTrack
 	)
+	const [loading, setLoading] = useState<boolean>(false)
+	const [error, setError] = useState<string | null>(null)
+
+	const handleLikeClick = async () => {
+		const accessToken = getAccessToken()
+		const refreshToken = getRefreshToken()
+
+		if (!currentTrack || !accessToken || !refreshToken) return
+
+		const updatedTrack = { ...currentTrack, isLiked: true }
+		dispatch(updateTrackLikeStatus(updatedTrack))
+
+		setLoading(true)
+		try {
+			await addTrackToFavorites(currentTrack.id, accessToken, refreshToken)
+		} catch (err) {
+			setError('Не удалось обновить лайк. Пожалуйста, попробуйте позже.')
+			dispatch(updateTrackLikeStatus(currentTrack))
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const handleDislikeClick = async () => {
+		const accessToken = getAccessToken()
+		const refreshToken = getRefreshToken()
+
+		if (!currentTrack || !accessToken || !refreshToken) return
+
+		const updatedTrack = { ...currentTrack, isLiked: false }
+		dispatch(updateTrackLikeStatus(updatedTrack))
+
+		setLoading(true)
+		try {
+			await removeTrackFromFavorites(currentTrack.id, accessToken, refreshToken)
+		} catch (err) {
+			setError('Не удалось обновить лайк. Пожалуйста, попробуйте позже.')
+			dispatch(updateTrackLikeStatus(currentTrack))
+		} finally {
+			setLoading(false)
+		}
+	}
 
 	const toggleRepeat = () => {
 		setIsRepeat(!isRepeat)
@@ -59,7 +108,7 @@ const Player: React.FC<TrackPlayProps> = ({
 	const playTrackFromIndex = (index: number) => {
 		const track = tracks[index]
 		if (track && track.track_file) {
-			dispatch(setCurrentTrack(track))
+			dispatch(setCurrentTrack({ ...track }))
 			if (audioRef.current) {
 				const handleCanPlay = () => {
 					audioRef.current?.play()
@@ -181,12 +230,24 @@ const Player: React.FC<TrackPlayProps> = ({
 				</div>
 
 				<div className={styles.track_play__like_dis}>
-					<div className={`${styles.track_play__like} _btn-icon`}>
+					<div
+						className={`${styles.track_play__like} _btn-icon`}
+						onClick={handleLikeClick}
+					>
 						<svg className={styles.track_play__like_svg}>
-							<use xlinkHref='/img/icon/sprite.svg#icon-like'></use>
+							<use
+								xlinkHref={
+									currentTrack?.isLiked
+										? 'img/icon/sprite.svg#icon-liked'
+										: 'img/icon/sprite.svg#icon-like'
+								}
+							></use>
 						</svg>
 					</div>
-					<div className={`${styles.track_play__dislike} _btn-icon`}>
+					<div
+						className={`${styles.track_play__dislike} _btn-icon`}
+						onClick={handleDislikeClick}
+					>
 						<svg className={styles.track_play__dislike_svg}>
 							<use xlinkHref='/img/icon/sprite.svg#icon-dislike'></use>
 						</svg>
