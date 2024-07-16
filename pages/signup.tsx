@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { registerUser } from '@/app/api'
 import styles from './signup.module.css'
 import Image from 'next/image'
+import Link from 'next/link'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/store/store'
+import { register } from '@/store/features/authSlice'
 
 export default function SignUp() {
 	const [email, setEmail] = useState('')
@@ -10,33 +13,55 @@ export default function SignUp() {
 	const [confirmPassword, setConfirmPassword] = useState('')
 	const [username, setUsername] = useState('')
 	const [error, setError] = useState('')
+	const [isSubmitting, setIsSubmitting] = useState(false)
 	const router = useRouter()
+	const dispatch = useDispatch<AppDispatch>()
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
+		if (isSubmitting) {
+			console.log('Форма отправляется, пожалйста подожди')
+			return
+		}
+
+		setIsSubmitting(true)
+
 		if (password !== confirmPassword) {
-			setError('Пароли не совпадают');
-			return;
+			setError('Пароли не совпадают')
+			setIsSubmitting(false)
+			return
 		}
 
 		try {
-			await registerUser(email, password, username)
-			router.push('/signin')
+			await dispatch(register({ email, password, username })).unwrap()
+			router.push({
+				pathname: '/signin',
+				query: { username },
+			})
 		} catch (err) {
 			if (err instanceof Error) {
-				setError('Ошибка регистрации: ' + err.message)
+				let errorMsg = 'Попробуйте снова позже'
+				try {
+					const parsedError = JSON.parse(err.message.split(': ')[1])
+					if (parsedError && typeof parsedError === 'object') {
+						errorMsg = Object.values(parsedError).flat().join(' ')
+					}
+				} catch (parseError) {}
+				setError('Ошибка регистрации: ' + errorMsg)
 			} else {
 				setError('Ошибка регистрации: Попробуйте снова позже')
 			}
+		} finally {
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<div className={styles.wrapper}>
 			<div className={styles.containerSignup}>
 				<div className={styles.modalBlock}>
 					<form className={styles.modalFormLogin} onSubmit={handleSubmit}>
-						<a href='/'>
+						<Link href='/'>
 							<div className={styles.modalLogo}>
 								<Image
 									src='/img/logo_modal.png'
@@ -45,7 +70,7 @@ export default function SignUp() {
 									height={21}
 								/>
 							</div>
-						</a>
+						</Link>
 						<input
 							className={`${styles.modalInput} ${styles.login}`}
 							type='text'

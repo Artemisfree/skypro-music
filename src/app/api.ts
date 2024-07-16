@@ -150,7 +150,8 @@ export const registerUser = async (
 			body: JSON.stringify({ email, password, username }),
 		})
 		await handleErrors(response)
-		return response.json()
+		const data = await response.json()
+		return { ...data, username }
 	} catch (error) {
 		console.error('Ошибка при регистрации пользователя:', error)
 		throw error
@@ -210,5 +211,4 @@ export const refreshToken = async (refresh: string): Promise<TokenResponse> => {
 
 export const logoutUser = () => {
 	localStorage.removeItem('accessToken')
-	window.location.href = '/'
 }

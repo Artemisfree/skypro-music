@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { loginUser, getToken } from '@/app/api'
 import styles from './signin.module.css'
 import { useDispatch } from 'react-redux'
 import Image from 'next/image'
+import Link from 'next/link'
+import { setUser } from '@/store/features/authSlice'
 
 export default function SignIn() {
 	const [email, setEmail] = useState('')
@@ -20,13 +22,21 @@ export default function SignIn() {
 
 			localStorage.setItem('accessToken', tokens.access)
 			localStorage.setItem('refreshToken', tokens.refresh)
+			localStorage.setItem('username', user.username)
+
+			dispatch(setUser(user.username))
 
 			router.push('/')
 		} catch (err) {
 			if (err instanceof Error) {
-				const errorMsg = err.message
-					? JSON.parse(err.message)
-					: 'Попробуйте снова позже'
+				let errorMsg = 'Попробуйте снова позже'
+				try {
+					const parsedError = JSON.parse(err.message)
+					if (parsedError && typeof parsedError === 'object') {
+						errorMsg = parsedError
+					}
+				} catch (parseError) {
+				}
 				setError('Ошибка авторизации: ' + errorMsg)
 			} else {
 				setError('Ошибка авторизации: Попробуйте снова позже')
@@ -39,11 +49,11 @@ export default function SignIn() {
 			<div className={styles.containerEnter}>
 				<div className={styles.modalBlock}>
 					<form className={styles.modalFormLogin} onSubmit={handleSubmit}>
-						<a href='/'>
+						<Link href='/'>
 							<div className={styles.modalLogo}>
 								<Image src='/img/logo_modal.png' alt='logo' width={140} height={21} />
 							</div>
-						</a>
+						</Link>
 						<input
 							className={`${styles.modalInput} ${styles.login}`}
 							type='text'
@@ -65,7 +75,7 @@ export default function SignIn() {
 							Войти
 						</button>
 						<button className={styles.modalBtnSignup}>
-							<a href='/signup'>Зарегистрироваться</a>
+							<Link href='/signup'>Зарегистрироваться</Link>
 						</button>
 					</form>
 				</div>
