@@ -23,7 +23,12 @@ const Nav: React.FC = () => {
 					height={17}
 				/>
 			</div>
-			<div className={styles.nav__burger} onClick={toggleMenu}>
+			<div
+				className={styles.nav__burger}
+				onClick={toggleMenu}
+				role='button'
+				aria-label='Toggle menu'
+			>
 				<span className={styles.burger__line}></span>
 				<span className={styles.burger__line}></span>
 				<span className={styles.burger__line}></span>

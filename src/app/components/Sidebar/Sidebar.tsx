@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import styles from './Sidebar.module.css'
 import { logoutUser } from '@/app/api'
@@ -10,12 +10,18 @@ import { RootState } from '@/store/store'
 const Sidebar: React.FC = () => {
 	const router = useRouter()
 	const dispatch = useDispatch()
-	const username =
-		useSelector((state: RootState) => state.auth.username) ||
-		localStorage.getItem('username')
-	
+
+	const [localUsername, setLocalUsername] = useState<string | null>(null)
+	const reduxUsername = useSelector((state: RootState) => state.auth.username)
+
 	useEffect(() => {
-	}, [username])
+		const storedUsername = localStorage.getItem('username')
+		if (storedUsername) {
+			setLocalUsername(storedUsername)
+		}
+	}, [])
+
+	const username = reduxUsername || localUsername
 
 
 	const handleLogout = async () => {
@@ -42,11 +48,11 @@ const Sidebar: React.FC = () => {
 			<div className={styles.sidebar__block}>
 				<div className={styles.sidebar__list}>
 					<div className={styles.sidebar__item}>
-						<a className={styles.sidebar__link} href='#'>
+						<a className={styles.sidebar__link} href='/daily'>
 							<Image
 								className={styles.sidebar__img}
 								src='/img/playlist01.png'
-								alt="day's playlist"
+								alt="Playlist of the day"
 								width={250}
 								height={170}
 								priority
@@ -54,22 +60,22 @@ const Sidebar: React.FC = () => {
 						</a>
 					</div>
 					<div className={styles.sidebar__item}>
-						<a className={styles.sidebar__link} href='#'>
+						<a className={styles.sidebar__link} href='/hits'>
 							<Image
 								className={styles.sidebar__img}
 								src='/img/playlist02.png'
-								alt="day's playlist"
+								alt="Hits Playlist"
 								width={250}
 								height={170}
 							/>
 						</a>
 					</div>
 					<div className={styles.sidebar__item}>
-						<a className={styles.sidebar__link} href='#'>
+						<a className={styles.sidebar__link} href='/indie'>
 							<Image
 								className={styles.sidebar__img}
 								src='/img/playlist03.png'
-								alt="day's playlist"
+								alt='Indie Playlist'
 								width={250}
 								height={170}
 							/>

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
-import { playTrack, setCurrentTrack } from '@/store/features/currentTrackSlice'
+import {
+	playTrack,
+	setCurrentTrack,
+	updateCurrentTime,
+} from '@/store/features/currentTrackSlice'
 import styles from './Player.module.css'
 import { addTrackToFavorites, removeTrackFromFavorites } from '@/app/api'
 import { updateTrackLikeStatus } from '@/store/features/playlistSlice'
@@ -35,7 +39,7 @@ const Player: React.FC<TrackPlayProps> = ({
 	audioRef,
 }) => {
 	const dispatch = useDispatch()
-	const { currentTrack, isPlaying } = useSelector(
+	const { currentTrack, isPlaying, currentTime } = useSelector(
 		(state: RootState) => state.currentTrack
 	)
 	const [loading, setLoading] = useState<boolean>(false)
@@ -52,7 +56,7 @@ const Player: React.FC<TrackPlayProps> = ({
 
 		setLoading(true)
 		try {
-			await addTrackToFavorites(currentTrack.id, accessToken, refreshToken)
+			await addTrackToFavorites(currentTrack._id, accessToken, refreshToken)
 		} catch (err) {
 			setError('Не удалось обновить лайк. Пожалуйста, попробуйте позже.')
 			dispatch(updateTrackLikeStatus(currentTrack))
@@ -72,7 +76,11 @@ const Player: React.FC<TrackPlayProps> = ({
 
 		setLoading(true)
 		try {
-			await removeTrackFromFavorites(currentTrack.id, accessToken, refreshToken)
+			await removeTrackFromFavorites(
+				currentTrack._id,
+				accessToken,
+				refreshToken
+			)
 		} catch (err) {
 			setError('Не удалось обновить лайк. Пожалуйста, попробуйте позже.')
 			dispatch(updateTrackLikeStatus(currentTrack))
@@ -109,12 +117,16 @@ const Player: React.FC<TrackPlayProps> = ({
 		const track = tracks[index]
 		if (track && track.track_file) {
 			dispatch(setCurrentTrack({ ...track }))
+			dispatch(updateCurrentTime(0))
 			if (audioRef.current) {
 				const handleCanPlay = () => {
-					audioRef.current?.play()
-					dispatch(playTrack())
+					if (isPlaying) {
+						audioRef.current?.play()
+						dispatch(playTrack())
+					}
 				}
 				audioRef.current.src = track.track_file
+				audioRef.current.currentTime = 0
 				audioRef.current.addEventListener('canplay', handleCanPlay, {
 					once: true,
 				})
@@ -127,7 +139,7 @@ const Player: React.FC<TrackPlayProps> = ({
 	const handleNextTrack = () => {
 		if (currentTrack) {
 			const currentIndex = tracks.findIndex(
-				track => track.id === currentTrack.id
+				track => track._id === currentTrack._id
 			)
 			const nextIndex = getNextIndex(currentIndex)
 			playTrackFromIndex(nextIndex)
@@ -137,7 +149,7 @@ const Player: React.FC<TrackPlayProps> = ({
 	const handlePreviousTrack = () => {
 		if (currentTrack) {
 			const currentIndex = tracks.findIndex(
-				track => track.id === currentTrack.id
+				track => track._id === currentTrack._id
 			)
 			const previousIndex = getPreviousIndex(currentIndex)
 			playTrackFromIndex(previousIndex)

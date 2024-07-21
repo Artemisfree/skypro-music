@@ -1,5 +1,5 @@
-const API_BASE_URL = 'https://skypro-music-api.skyeng.tech/catalog'
-const AUTH_API_URL = 'https://skypro-music-api.skyeng.tech/user'
+const API_BASE_URL = 'https://webdev-music-003b5b991590.herokuapp.com/catalog'
+const AUTH_API_URL = 'https://webdev-music-003b5b991590.herokuapp.com/user'
 
 export interface TokenResponse {
 	access: string
@@ -58,7 +58,8 @@ export const getTrackById = async (id: number) => {
 	try {
 		const response = await fetch(`${API_BASE_URL}/track/${id}`)
 		await handleErrors(response)
-		return response.json()
+		const data = await response.json()
+		return data
 	} catch (error) {
 		console.error(`Ошибка при получении трека с ID ${id}:`, error)
 		throw error
@@ -185,7 +186,7 @@ export const getToken = async (email: string, password: string) => {
 			body: JSON.stringify({ email, password }),
 		})
 		await handleErrors(response)
-		return response.json()
+		return await response.json()
 	} catch (error) {
 		console.error('Ошибка при получении токена:', error)
 		throw error
@@ -201,8 +202,10 @@ export const refreshToken = async (refresh: string): Promise<TokenResponse> => {
 			},
 			body: JSON.stringify({ refresh }),
 		})
+		console.log('Response status:', response.status)
+		console.log('Response text:', await response.text())
 		await handleErrors(response)
-		return response.json()
+		return await response.json()
 	} catch (error) {
 		console.error('Ошибка при обновлении токена:', error)
 		throw error
@@ -211,4 +214,55 @@ export const refreshToken = async (refresh: string): Promise<TokenResponse> => {
 
 export const logoutUser = () => {
 	localStorage.removeItem('accessToken')
+}
+
+
+export const createSelection = async (
+	title: string,
+	description: string,
+	tracks: number[],
+	access: string,
+	refresh: string
+) => {
+	try {
+		const response = await fetchWithAuth(
+			`${API_BASE_URL}/selection`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${access}`,
+				},
+				body: JSON.stringify({ title, description, tracks }),
+			},
+			refresh
+		)
+		await handleErrors(response)
+		return response.json()
+	} catch (error) {
+		console.error('Ошибка при создании подборки:', error)
+		throw error
+	}
+}
+
+export const getAllSelections = async () => {
+	try {
+		const response = await fetch(`${API_BASE_URL}/selection/all`)
+		await handleErrors(response)
+		return response.json()
+	} catch (error) {
+		console.error('Ошибка при получении всех подборок:', error)
+		throw error
+	}
+}
+
+export const getSelectionById = async (id: number) => {
+	try {
+		const response = await fetch(`${API_BASE_URL}/selection/${id}`)
+		await handleErrors(response)
+		return response.json()
+	} catch (error) {
+		console.error(`Ошибка при получении подборки с ID ${id}:`, error)
+		throw error
+	}
 }

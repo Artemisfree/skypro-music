@@ -19,11 +19,11 @@ const playlistSlice = createSlice({
 		updateTrackLikeStatus(state, action: PayloadAction<Track>) {
 			const updatedTrack = action.payload
 			state.tracks = state.tracks.map(track =>
-				track.id === updatedTrack.id ? updatedTrack : track
+				track._id === updatedTrack._id ? updatedTrack : track
 			)
 		},
 		removeTrack(state, action: PayloadAction<string>) {
-			state.tracks = state.tracks.filter(track => track.id !== action.payload)
+			state.tracks = state.tracks.filter(track => track._id !== action.payload)
 		},
 	},
 })

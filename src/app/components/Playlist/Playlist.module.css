@@ -33,9 +33,6 @@
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  overflow-y: auto;
-  height: 100vh;
-  overflow-y: auto;
 }
 
 .playlist_title__col {

@@ -29,9 +29,14 @@ const Filter: React.FC = () => {
 	useEffect(() => {
 		const fetchTracks = async () => {
 			try {
-				const data = await getAllTracks()
-				setTracks(data)
-				extractUniqueValues(data)
+				const response = await getAllTracks()
+				const data = response.data
+				if (Array.isArray(data)) {
+					setTracks(data)
+					extractUniqueValues(data)
+				} else {
+					console.error('Неправильный формат данных:', data)
+				}
 			} catch (error) {
 				console.error('Ошибка при получении треков:', error)
 			}

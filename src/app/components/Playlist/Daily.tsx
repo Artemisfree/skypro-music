@@ -7,13 +7,13 @@ import {
 	setCurrentTrack,
 	playTrack,
 	pauseTrack,
-	updateCurrentTime,
-	setPlayingState,
+    updateCurrentTime,
+    setPlayingState,
 } from '@/store/features/currentTrackSlice'
-import { setTracks, removeTrack, updateTrackLikeStatus } from '@/store/features/playlistSlice'
-import { getAllFavoriteTracks, removeTrackFromFavorites } from '@/app/api'
+import { setTracks } from '@/store/features/playlistSlice'
+import { getSelectionById, getTrackById } from '@/app/api'
 
-const Favorites: React.FC = () => {
+const DailyPlaylist: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | null>(null)
 	const dispatch = useDispatch()
@@ -21,38 +21,28 @@ const Favorites: React.FC = () => {
 		(state: RootState) => state.currentTrack
 	)
 	const { tracks } = useSelector((state: RootState) => state.playlist)
-	
-	const audioRef = useRef<HTMLAudioElement>(null)
 
-	const getAccessToken = (): string | null => {
-		return localStorage.getItem('accessToken')
-	}
-
-	const getRefreshToken = (): string | null => {
-		return localStorage.getItem('refreshToken')
-	}
+    const audioRef = useRef<HTMLAudioElement>(null)
 
 	useEffect(() => {
-		const fetchFavoriteTracks = async () => {
-			const accessToken = getAccessToken()
-			const refreshToken = getRefreshToken()
-			if (!accessToken || !refreshToken) {
-				setError('Пожалуйста, авторизуйтесь для доступа к избранным трекам.')
-				return
-			}
-
+		const fetchDayTracks = async () => {
+			setLoading(true)
 			try {
-				const response = await getAllFavoriteTracks(accessToken, refreshToken)
-				const favorites = response.data
-				dispatch(setTracks(favorites))
-			} catch (error) {
-				setError(
-					'Не удалось загрузить избранные треки. Пожалуйста, попробуйте позже.'
+				const selection = await getSelectionById(2)
+				const trackPromises = selection.data.items.map((id: number) =>
+					getTrackById(id)
 				)
+				const dayTracksResponses = await Promise.all(trackPromises)
+				const dayTracks = dayTracksResponses.map(response => response.data)
+				dispatch(setTracks(dayTracks))
+			} catch (error) {
+				setError('Не удалось загрузить треки. Пожалуйста, попробуйте позже.')
+			} finally {
+				setLoading(false)
 			}
 		}
 
-		fetchFavoriteTracks()
+		fetchDayTracks()
 	}, [dispatch])
 
 	const handleTrackClick = (track: Track) => {
@@ -64,37 +54,6 @@ const Favorites: React.FC = () => {
 			}
 		} else {
 			dispatch(setCurrentTrack({ ...track }))
-		}
-	}
-
-	const handleDislikeClick = async (e: React.MouseEvent, track: Track) => {
-		e.stopPropagation()
-		const accessToken = getAccessToken()
-		const refreshToken = getRefreshToken()
-
-		if (!accessToken || !refreshToken) {
-			setError('Пожалуйста, авторизуйтесь для снятия лайка.')
-			return
-		}
-
-		const updatedTrack = { ...track, isLiked: false }
-		dispatch(updateTrackLikeStatus(updatedTrack))
-
-		if (currentTrack?._id === track._id) {
-			dispatch(setCurrentTrack(updatedTrack))
-		}
-		setLoading(true)
-		try {
-			await removeTrackFromFavorites(track._id, accessToken, refreshToken)
-			dispatch(removeTrack(track._id))
-		} catch (err) {
-			setError('Не удалось снять лайк. Пожалуйста, попробуйте позже.')
-			dispatch(updateTrackLikeStatus(track))
-			if (currentTrack?._id === track._id) {
-				dispatch(setCurrentTrack(track))
-			}
-		} finally {
-			setLoading(false)
 		}
 	}
 
@@ -174,12 +133,12 @@ const Favorites: React.FC = () => {
 			</div>
 			<div className={styles.content__playlist}>
 				{Array.isArray(tracks) &&
-					tracks.map(track => (
+					tracks.map((track, index) => (
 						<div
 							className={`${styles.playlist__track} ${
 								currentTrack?._id === track._id ? styles.currentTrack : ''
 							}`}
-							key={track._id}
+							key={track._id || index}
 							onClick={() => handleTrackClick(track)}
 						>
 							<div className={styles.track__title}>
@@ -213,13 +172,7 @@ const Favorites: React.FC = () => {
 									{track.album}
 								</a>
 							</div>
-							<div
-								className={`${styles.track__like} _btn-icon`}
-								onClick={e => handleDislikeClick(e, track)}
-							>
-								<svg className={styles.track__time_svg}>
-									<use xlinkHref='img/icon/sprite.svg#icon-liked'></use>
-								</svg>
+							<div className={styles.track__like}>
 								<span className={styles.track__time_text}>
 									{formatDuration(track.duration_in_seconds)}
 								</span>
@@ -231,4 +184,4 @@ const Favorites: React.FC = () => {
 	)
 }
 
-export default Favorites
+export default DailyPlaylist

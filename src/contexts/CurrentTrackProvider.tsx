@@ -1,7 +1,7 @@
 'use client'
 
 import { Track } from '@/app/components/Playlist/Playlist'
-import {
+import React, {
 	Dispatch,
 	ReactNode,
 	SetStateAction,

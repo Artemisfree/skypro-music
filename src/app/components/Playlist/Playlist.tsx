@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
 	getAllTracks,
 	addTrackToFavorites,
@@ -12,6 +12,8 @@ import {
 	setCurrentTrack,
 	playTrack,
 	pauseTrack,
+	updateCurrentTime,
+	setPlayingState,
 } from '@/store/features/currentTrackSlice'
 import {
 	setTracks,
@@ -36,10 +38,12 @@ const Playlist: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false)
 	const [isModalVisible, setModalVisible] = useState<boolean>(false)
 	const dispatch = useDispatch()
-	const { currentTrack, isPlaying } = useSelector(
+	const { currentTrack, isPlaying, currentTime } = useSelector(
 		(state: RootState) => state.currentTrack
 	)
 	const { tracks } = useSelector((state: RootState) => state.playlist)
+
+	const audioRef = useRef<HTMLAudioElement>(null)
 
 	const getAccessToken = (): string | null => {
 		return localStorage.getItem('accessToken')
@@ -50,7 +54,7 @@ const Playlist: React.FC = () => {
 	}
 
 	const handleTrackClick = (track: Track) => {
-		if (currentTrack?.id === track.id) {
+		if (currentTrack?._id === track._id) {
 			if (isPlaying) {
 				dispatch(pauseTrack())
 			} else {
@@ -71,16 +75,15 @@ const Playlist: React.FC = () => {
 			return
 		}
 
-
 		const updatedTrack = { ...track, isLiked: !track.isLiked }
 		dispatch(updateTrackLikeStatus(updatedTrack))
 
 		setLoading(true)
 		try {
 			if (track.isLiked) {
-				await removeTrackFromFavorites(track.id, accessToken, refreshToken)
+				await removeTrackFromFavorites(track._id, accessToken, refreshToken)
 			} else {
-				await addTrackToFavorites(track.id, accessToken, refreshToken)
+				await addTrackToFavorites(track._id, accessToken, refreshToken)
 			}
 		} catch (err) {
 			setError('Не удалось обновить лайк. Пожалуйста, попробуйте позже.')
@@ -94,20 +97,24 @@ const Playlist: React.FC = () => {
 	useEffect(() => {
 		const fetchTracks = async () => {
 			try {
-				const data: Track[] = await getAllTracks()
+				const response = await getAllTracks()
+				const data = response.data
 				let tracksWithLikes = data
 
 				const accessToken = getAccessToken()
 				const refreshToken = getRefreshToken()
 
 				if (accessToken && refreshToken) {
-					const favorites: Track[] = await getAllFavoriteTracks(
+					const favoritesResponse = await getAllFavoriteTracks(
 						accessToken,
 						refreshToken
 					)
+					const favorites = favoritesResponse.data
 					tracksWithLikes = data.map((track: Track) => ({
 						...track,
-						isLiked: favorites.some((favTrack: Track) => favTrack.id === track.id),
+						isLiked: favorites.some(
+							(favTrack: Track) => favTrack._id === track._id
+						),
 					}))
 				}
 
@@ -130,6 +137,54 @@ const Playlist: React.FC = () => {
 		setModalVisible(false)
 		setError(null)
 	}
+
+	useEffect(() => {
+		if (currentTrack) {
+			localStorage.setItem('currentTrack', JSON.stringify(currentTrack))
+			localStorage.setItem('currentTime', JSON.stringify(currentTime))
+			localStorage.setItem('isPlaying', JSON.stringify(isPlaying))
+		}
+	}, [currentTrack, currentTime, isPlaying])
+
+	useEffect(() => {
+		const savedTrack = localStorage.getItem('currentTrack')
+		const savedTime = localStorage.getItem('currentTime')
+		const savedIsPlaying = localStorage.getItem('isPlaying')
+
+		if (savedTrack && savedTime && savedIsPlaying !== null) {
+			const track = JSON.parse(savedTrack)
+			const time = JSON.parse(savedTime)
+			const playing = JSON.parse(savedIsPlaying)
+			dispatch(setCurrentTrack(track))
+			dispatch(updateCurrentTime(time))
+			dispatch(setPlayingState(playing))
+			if (audioRef.current) {
+				audioRef.current.currentTime = time
+				if (playing) {
+					audioRef.current.play()
+				}
+			}
+		}
+	}, [dispatch])
+
+	useEffect(() => {
+		const handleTimeUpdate = () => {
+			if (audioRef.current) {
+				const currentTime = audioRef.current.currentTime
+				dispatch(updateCurrentTime(currentTime))
+				localStorage.setItem('currentTime', JSON.stringify(currentTime))
+			}
+		}
+		const audioElement = audioRef.current
+		if (audioElement) {
+			audioElement.addEventListener('timeupdate', handleTimeUpdate)
+		}
+		return () => {
+			if (audioElement) {
+				audioElement.removeEventListener('timeupdate', handleTimeUpdate)
+			}
+		}
+	}, [dispatch])
 
 	if (error) {
 		return (
@@ -158,64 +213,65 @@ const Playlist: React.FC = () => {
 				</div>
 			</div>
 			<div className={styles.content__playlist}>
-				{tracks.map(track => (
-					<div
-						className={`${styles.playlist__track} ${
-							currentTrack?.id === track.id ? styles.currentTrack : ''
-						}`}
-						key={track.id}
-						onClick={() => handleTrackClick(track)}
-					>
-						<div className={styles.track__title}>
-							<div className={styles.track__title_image}>
-								{currentTrack?.id === track.id ? (
-									<div
-										className={`${
-											isPlaying ? styles.pulsingDot : styles.staticDot
-										}`}
-									></div>
-								) : (
-									<svg className={styles.track__title_svg}>
-										<use xlinkHref='img/icon/sprite.svg#icon-note'></use>
-									</svg>
-								)}
+				{Array.isArray(tracks) &&
+					tracks.map(track => (
+						<div
+							className={`${styles.playlist__track} ${
+								currentTrack?._id === track._id ? styles.currentTrack : ''
+							}`}
+							key={track._id}
+							onClick={() => handleTrackClick(track)}
+						>
+							<div className={styles.track__title}>
+								<div className={styles.track__title_image}>
+									{currentTrack?._id === track._id ? (
+										<div
+											className={`${
+												isPlaying ? styles.pulsingDot : styles.staticDot
+											}`}
+										></div>
+									) : (
+										<svg className={styles.track__title_svg}>
+											<use xlinkHref='img/icon/sprite.svg#icon-note'></use>
+										</svg>
+									)}
+								</div>
+								<div className={styles.track__title_text}>
+									<a className={styles.track__title_link} href='#'>
+										{track.name}{' '}
+										<span className={styles.track__title_span}></span>
+									</a>
+								</div>
 							</div>
-							<div className={styles.track__title_text}>
-								<a className={styles.track__title_link} href='#'>
-									{track.name}{' '}
-									<span className={styles.track__title_span}></span>
+							<div className={styles.track__author}>
+								<a className={styles.track__author_link} href='#'>
+									{track.author}
 								</a>
 							</div>
+							<div className={styles.track__album}>
+								<a className={styles.track__album_link} href='#'>
+									{track.album}
+								</a>
+							</div>
+							<div
+								className={`${styles.track__like} _btn-icon`}
+								onClick={e => handleLikeClick(e, track)}
+							>
+								<svg className={styles.track__time_svg}>
+									<use
+										xlinkHref={
+											track.isLiked
+												? 'img/icon/sprite.svg#icon-liked'
+												: 'img/icon/sprite.svg#icon-like'
+										}
+									></use>
+								</svg>
+								<span className={styles.track__time_text}>
+									{formatDuration(track.duration_in_seconds)}
+								</span>
+							</div>
 						</div>
-						<div className={styles.track__author}>
-							<a className={styles.track__author_link} href='#'>
-								{track.author}
-							</a>
-						</div>
-						<div className={styles.track__album}>
-							<a className={styles.track__album_link} href='#'>
-								{track.album}
-							</a>
-						</div>
-						<div
-							className={`${styles.track__like} _btn-icon`}
-							onClick={e => handleLikeClick(e, track)}
-						>
-							<svg className={styles.track__time_svg}>
-								<use
-									xlinkHref={
-										track.isLiked
-											? 'img/icon/sprite.svg#icon-liked'
-											: 'img/icon/sprite.svg#icon-like'
-									}
-								></use>
-							</svg>
-							<span className={styles.track__time_text}>
-								{formatDuration(track.duration_in_seconds)}
-							</span>
-						</div>
-					</div>
-				))}
+					))}
 			</div>
 		</div>
 	)
