@@ -19,7 +19,6 @@ import Bar from '../Bar/Bar'
 function App({ children, title }) {
 	return (
 		<Provider store={store}>
-			{/* <div className={`wrapper ${montserrat.className}`}> */}
 				<div className='container'>
 					<CurrentTrackProvider>
 						<main className='main'>
@@ -36,7 +35,6 @@ function App({ children, title }) {
 					</CurrentTrackProvider>
 					<footer className='footer'></footer>
 				</div>
-			{/* </div> */}
 		</Provider>
 	)
 }
