@@ -5,16 +5,10 @@ import Search from '../Search/Search'
 import Filter from '../Filter/Filter'
 import Sidebar from '../Sidebar/Sidebar'
 import '../../globals.css'
-// import { Montserrat } from 'next/font/google'
 import { CurrentTrackProvider } from '@/contexts/CurrentTrackProvider'
 import { Provider } from 'react-redux'
 import { store } from '@/store/store'
 import Bar from '../Bar/Bar'
-
-// const montserrat = Montserrat({
-// 	subsets: ['cyrillic', 'latin'],
-// 	weight: ['400', '500', '600', '700'],
-// })
 
 function App({ children, title }) {
 	return (

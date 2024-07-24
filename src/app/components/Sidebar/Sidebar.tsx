@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '@/store/features/authSlice'
 import { RootState } from '@/store/store'
+import Link from 'next/link'
 
 const Sidebar: React.FC = () => {
 	const router = useRouter()
@@ -48,7 +49,7 @@ const Sidebar: React.FC = () => {
 			<div className={styles.sidebar__block}>
 				<div className={styles.sidebar__list}>
 					<div className={styles.sidebar__item}>
-						<a className={styles.sidebar__link} href='/daily'>
+						<Link className={styles.sidebar__link} href='/daily'>
 							<Image
 								className={styles.sidebar__img}
 								src='/img/playlist01.png'
@@ -57,10 +58,10 @@ const Sidebar: React.FC = () => {
 								height={170}
 								priority
 							/>
-						</a>
+						</Link>
 					</div>
 					<div className={styles.sidebar__item}>
-						<a className={styles.sidebar__link} href='/hits'>
+						<Link className={styles.sidebar__link} href='/hits'>
 							<Image
 								className={styles.sidebar__img}
 								src='/img/playlist02.png'
@@ -68,10 +69,10 @@ const Sidebar: React.FC = () => {
 								width={250}
 								height={170}
 							/>
-						</a>
+						</Link>
 					</div>
 					<div className={styles.sidebar__item}>
-						<a className={styles.sidebar__link} href='/indie'>
+						<Link className={styles.sidebar__link} href='/indie'>
 							<Image
 								className={styles.sidebar__img}
 								src='/img/playlist03.png'
@@ -79,7 +80,7 @@ const Sidebar: React.FC = () => {
 								width={250}
 								height={170}
 							/>
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>

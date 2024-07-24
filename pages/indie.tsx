@@ -1,11 +1,11 @@
 import React from 'react'
 import App from '@/app/components/Main/Main'
-import IndiePlaylist from '@/app/components/Playlist/Indie'
+import Playlist from '@/app/components/Playlist/Playlist'
 
 const IndiePage: React.FC = () => {
 	return (
 		<App title='Инди-заряд'>
-			<IndiePlaylist />
+			<Playlist playlistId={4} />
 		</App>
 	)
 }

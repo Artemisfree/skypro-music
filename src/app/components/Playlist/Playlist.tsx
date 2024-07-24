@@ -4,6 +4,8 @@ import {
 	addTrackToFavorites,
 	removeTrackFromFavorites,
 	getAllFavoriteTracks,
+	getSelectionById,
+	getTrackById,
 } from '@/app/api'
 import styles from './Playlist.module.css'
 import { useDispatch, useSelector } from 'react-redux'
@@ -33,7 +35,7 @@ const Modal: React.FC<{ message: string; onClose: () => void }> = ({
 	</div>
 )
 
-const Playlist: React.FC = () => {
+const Playlist: React.FC<{ playlistId?: number }> = ({ playlistId }) => {
 	const [error, setError] = useState<string | null>(null)
 	const [loading, setLoading] = useState<boolean>(false)
 	const [isModalVisible, setModalVisible] = useState<boolean>(false)
@@ -61,7 +63,7 @@ const Playlist: React.FC = () => {
 				dispatch(playTrack())
 			}
 		} else {
-			dispatch(setCurrentTrack({ ...track}))
+			dispatch(setCurrentTrack({ ...track }))
 		}
 	}
 
@@ -97,35 +99,47 @@ const Playlist: React.FC = () => {
 	useEffect(() => {
 		const fetchTracks = async () => {
 			try {
-				const response = await getAllTracks()
-				const data = response.data
-				let tracksWithLikes = data
-
-				const accessToken = getAccessToken()
-				const refreshToken = getRefreshToken()
-
-				if (accessToken && refreshToken) {
-					const favoritesResponse = await getAllFavoriteTracks(
-						accessToken,
-						refreshToken
+				if (playlistId) {
+					const selection = await getSelectionById(playlistId)
+					const trackPromises = selection.data.items.map((id: number) =>
+						getTrackById(id)
 					)
-					const favorites = favoritesResponse.data
-					tracksWithLikes = data.map((track: Track) => ({
-						...track,
-						isLiked: favorites.some(
-							(favTrack: Track) => favTrack._id === track._id
-						),
-					}))
-				}
+					const playlistTracksResponses = await Promise.all(trackPromises)
+					const playlistTracks = playlistTracksResponses.map(
+						response => response.data
+					)
+					dispatch(setTracks(playlistTracks))
+				} else {
+					const response = await getAllTracks()
+					const data = response.data
+					let tracksWithLikes = data
 
-				dispatch(setTracks(tracksWithLikes))
+					const accessToken = getAccessToken()
+					const refreshToken = getRefreshToken()
+
+					if (accessToken && refreshToken) {
+						const favoritesResponse = await getAllFavoriteTracks(
+							accessToken,
+							refreshToken
+						)
+						const favorites = favoritesResponse.data
+						tracksWithLikes = data.map((track: Track) => ({
+							...track,
+							isLiked: favorites.some(
+								(favTrack: Track) => favTrack._id === track._id
+							),
+						}))
+					}
+
+					dispatch(setTracks(tracksWithLikes))
+				}
 			} catch (error) {
 				setError('Не удалось загрузить треки. Пожалуйста, попробуйте позже.')
 			}
 		}
 
 		fetchTracks()
-	}, [dispatch])
+	}, [dispatch, playlistId])
 
 	const formatDuration = (seconds: number) => {
 		const minutes = Math.floor(seconds / 60)
