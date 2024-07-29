@@ -2,7 +2,6 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import Nav from './Nav'
-import { useRouter } from 'next/router'
 
 jest.mock('next/image', () => ({ src, alt }: { src: string; alt: string }) => (
 	<img src={src} alt={alt} />

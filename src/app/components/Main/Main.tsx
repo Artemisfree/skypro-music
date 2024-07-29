@@ -9,10 +9,12 @@ import { CurrentTrackProvider } from '@/contexts/CurrentTrackProvider'
 import { Provider } from 'react-redux'
 import { store } from '@/store/store'
 import Bar from '../Bar/Bar'
+import { FilteredTracksProvider } from '@/contexts/FilteredTracksContext'
 
 function App({ children, title }) {
 	return (
 		<Provider store={store}>
+			<FilteredTracksProvider>
 				<div className='container'>
 					<CurrentTrackProvider>
 						<main className='main'>
@@ -29,6 +31,7 @@ function App({ children, title }) {
 					</CurrentTrackProvider>
 					<footer className='footer'></footer>
 				</div>
+			</FilteredTracksProvider>
 		</Provider>
 	)
 }

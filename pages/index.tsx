@@ -25,6 +25,7 @@ const HomePage: React.FC = () => {
 			break
 		default:
 			title = 'Треки'
+			playlistId = undefined
 			break
 	}
 

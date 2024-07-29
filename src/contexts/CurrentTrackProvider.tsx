@@ -1,6 +1,6 @@
 'use client'
 
-import { Track } from '@/app/components/Playlist/Playlist'
+import { Track } from '@/types/types'
 import React, {
 	Dispatch,
 	ReactNode,

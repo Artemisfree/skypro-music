@@ -264,3 +264,10 @@
 .modal button:hover {
 	background-color: #9233f8;
 }
+
+.noTracksFound {
+    padding: 20px;
+    text-align: center;
+    font-size: 20px;
+    color: #888;
+}
