@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Playlist component renders correctly and matches snapshot 1`] = `
+<div
+  className="centerblock__content"
+>
+  <div
+    className="content__title"
+  >
+    <div
+      className="col01"
+    >
+      ТРЕК
+    </div>
+    <div
+      className="col02"
+    >
+      ИСПОЛНИТЕЛЬ
+    </div>
+    <div
+      className="col03"
+    >
+      АЛЬБОМ
+    </div>
+    <div
+      className="col04"
+    >
+      <svg
+        className="playlist_title__svg"
+      >
+        <use
+          xlinkHref="img/icon/sprite.svg#icon-watch"
+        />
+      </svg>
+    </div>
+  </div>
+  <div
+    className="content__playlist"
+  >
+    <div
+      className="noTracksFound"
+    >
+      Треки не найдены
+    </div>
+  </div>
+</div>
+`;
