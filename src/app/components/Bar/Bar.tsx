@@ -23,15 +23,26 @@ function Bar() {
 	const [volume, setVolume] = useState(1)
 
 	const audioRef = useRef<HTMLAudioElement | null>(null)
-	const duration = audioRef.current?.duration
+	const duration = audioRef.current?.duration || 0
 
 	useEffect(() => {
 		if (audioRef.current && currentTrack) {
+			const handleCanPlay = () => {
+				if (audioRef.current && isPlaying) {
+					audioRef.current.play().catch(error => {
+						console.error('Error playing audio:', error)
+					})
+				}
+			}
+
 			audioRef.current.src = currentTrack.track_file
-			audioRef.current.play()
-			dispatch(playTrack())
+			audioRef.current.addEventListener('canplay', handleCanPlay)
+
+			return () => {
+				audioRef.current?.removeEventListener('canplay', handleCanPlay)
+			}
 		}
-	}, [currentTrack, dispatch])
+	}, [currentTrack, isPlaying, dispatch])
 
 	useEffect(() => {
 		const handleEnded = () => {
@@ -163,7 +174,12 @@ function Bar() {
 						tracks={tracks}
 						audioRef={audioRef}
 					/>
-					<Volume volume={volume} onVolumeChange={handleVolumeChange} />
+					<div className={styles.bar__volume_block}>
+						<Volume volume={volume} onVolumeChange={handleVolumeChange} />
+						<span className={styles.bar__time}>
+							{formatTime(currentTime)} / {formatTime(duration)}
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -171,3 +187,9 @@ function Bar() {
 }
 
 export default Bar
+
+const formatTime = (seconds: number): string => {
+	const minutes = Math.floor(seconds / 60)
+	const remainingSeconds = Math.floor(seconds % 60)
+	return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`
+}

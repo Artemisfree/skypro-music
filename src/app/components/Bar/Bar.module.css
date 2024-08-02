@@ -16,12 +16,6 @@
   flex-direction: column;
 }
 
-/* .bar__player_progress {
-  width: 100%;
-  height: 5px;
-  background: #2e2e2e;
-} */
-
 .bar__player_block {
   height: 73px;
   display: -webkit-box;
@@ -96,4 +90,15 @@
 .styledProgressInput::-moz-range-progress {
   background-color: var(--progress-color);
   height: var(--progress-height);
+}
+
+.bar__time {
+	color: #fff;
+	font-size: 16px;
+  margin-right: 15px;
+}
+
+.bar__volume_block {
+  display: flex;
+  align-items: center;
 }

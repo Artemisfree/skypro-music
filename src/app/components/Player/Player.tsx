@@ -5,11 +5,25 @@ import {
 	playTrack,
 	setCurrentTrack,
 	updateCurrentTime,
+	setPlayingState,
+	pauseTrack,
 } from '@/store/features/currentTrackSlice'
 import styles from './Player.module.css'
 import { addTrackToFavorites, removeTrackFromFavorites } from '@/app/api'
 import { updateTrackLikeStatus } from '@/store/features/playlistSlice'
 import { Track } from '@/types/types'
+
+const Modal: React.FC<{ message: string; onClose: () => void }> = ({
+	message,
+	onClose,
+}) => (
+	<div className={styles.modalOverlay}>
+		<div className={styles.modal}>
+			<p>{message}</p>
+			<button onClick={onClose}>Закрыть</button>
+		</div>
+	</div>
+)
 
 type TrackPlayProps = {
 	isRepeat: boolean
@@ -44,12 +58,18 @@ const Player: React.FC<TrackPlayProps> = ({
 	)
 	const [loading, setLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | null>(null)
+	const [isModalVisible, setModalVisible] = useState<boolean>(false)
 
 	const handleLikeClick = async () => {
 		const accessToken = getAccessToken()
 		const refreshToken = getRefreshToken()
 
-		if (!currentTrack || !accessToken || !refreshToken) return
+		if (!accessToken || !refreshToken) {
+			setModalVisible(true)
+			return
+		}
+
+		if (!currentTrack) return
 
 		const updatedTrack = { ...currentTrack, isLiked: true }
 		dispatch(updateTrackLikeStatus(updatedTrack))
@@ -69,7 +89,12 @@ const Player: React.FC<TrackPlayProps> = ({
 		const accessToken = getAccessToken()
 		const refreshToken = getRefreshToken()
 
-		if (!currentTrack || !accessToken || !refreshToken) return
+		if (!accessToken || !refreshToken) {
+			setModalVisible(true)
+			return
+		}
+
+		if (!currentTrack) return
 
 		const updatedTrack = { ...currentTrack, isLiked: false }
 		dispatch(updateTrackLikeStatus(updatedTrack))
@@ -101,7 +126,7 @@ const Player: React.FC<TrackPlayProps> = ({
 		if (isShuffle) {
 			return Math.floor(Math.random() * tracks.length)
 		} else {
-			return (currentIndex + 1) % tracks.length
+			return currentIndex < tracks.length - 1 ? currentIndex + 1 : 0
 		}
 	}
 
@@ -109,7 +134,7 @@ const Player: React.FC<TrackPlayProps> = ({
 		if (isShuffle) {
 			return Math.floor(Math.random() * tracks.length)
 		} else {
-			return (currentIndex - 1 + tracks.length) % tracks.length
+			return currentIndex > 0 ? currentIndex - 1 : tracks.length - 1
 		}
 	}
 
@@ -121,7 +146,9 @@ const Player: React.FC<TrackPlayProps> = ({
 			if (audioRef.current) {
 				const handleCanPlay = () => {
 					if (isPlaying) {
-						audioRef.current?.play()
+						audioRef.current?.play().catch(error => {
+							console.error('Error playing audio:', error)
+						})
 						dispatch(playTrack())
 					}
 				}
@@ -136,13 +163,23 @@ const Player: React.FC<TrackPlayProps> = ({
 		}
 	}
 
+	useEffect(() => {
+		if (currentTrack) {
+			localStorage.setItem('currentTrack', JSON.stringify(currentTrack))
+			localStorage.setItem('currentTime', JSON.stringify(currentTime))
+			localStorage.setItem('isPlaying', JSON.stringify(isPlaying))
+		}
+	}, [currentTrack, currentTime, isPlaying])
+
 	const handleNextTrack = () => {
 		if (currentTrack) {
 			const currentIndex = tracks.findIndex(
 				track => track._id === currentTrack._id
 			)
 			const nextIndex = getNextIndex(currentIndex)
-			playTrackFromIndex(nextIndex)
+			if (nextIndex !== currentIndex) {
+				playTrackFromIndex(nextIndex)
+			}
 		}
 	}
 
@@ -152,7 +189,9 @@ const Player: React.FC<TrackPlayProps> = ({
 				track => track._id === currentTrack._id
 			)
 			const previousIndex = getPreviousIndex(currentIndex)
-			playTrackFromIndex(previousIndex)
+			if (previousIndex !== currentIndex) {
+				playTrackFromIndex(previousIndex)
+			}
 		}
 	}
 
@@ -161,7 +200,9 @@ const Player: React.FC<TrackPlayProps> = ({
 			if (isRepeat) {
 				if (audioRef.current) {
 					audioRef.current.currentTime = 0
-					audioRef.current.play()
+					audioRef.current.play().catch(error => {
+						console.error('Error playing audio:', error)
+					})
 				}
 			} else {
 				handleNextTrack()
@@ -175,6 +216,11 @@ const Player: React.FC<TrackPlayProps> = ({
 			audioElement?.removeEventListener('ended', handleEnded)
 		}
 	}, [currentTrack, isShuffle, isRepeat])
+
+	const closeModal = () => {
+		setModalVisible(false)
+		setError(null)
+	}
 
 	return (
 		<div className={styles.bar__player}>
@@ -266,6 +312,13 @@ const Player: React.FC<TrackPlayProps> = ({
 					</div>
 				</div>
 			</div>
+
+			{isModalVisible && (
+				<Modal
+					message='Пожалуйста, авторизуйтесь для того, чтобы ставить лайки.'
+					onClose={closeModal}
+				/>
+			)}
 		</div>
 	)
 }

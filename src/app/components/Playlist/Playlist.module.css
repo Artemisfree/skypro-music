@@ -6,6 +6,8 @@
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow-y: auto;
+  max-height: 100vh;
 }
 
 .content__title {
@@ -33,6 +35,7 @@
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
+  padding-bottom: 60px;
 }
 
 .playlist_title__col {

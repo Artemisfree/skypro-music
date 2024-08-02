@@ -43,11 +43,35 @@ const handleErrors = async (response: Response) => {
 	return response
 }
 
+export const cacheData = (key, data) => {
+	const expiration = Date.now() + 3600000
+	localStorage.setItem(key, JSON.stringify({ data, expiration }))
+}
+
+export const getCachedData = (key) => {
+	const cached = localStorage.getItem(key)
+	if (!cached) return null
+
+	const { data, expiration } = JSON.parse(cached)
+	if (Date.now() > expiration) {
+		localStorage.removeItem(key)
+		return null
+	}
+	return data
+}
+
 export const getAllTracks = async () => {
 	try {
+		const cachedData = getCachedData('allTracks')
+		if (cachedData) {
+			return cachedData
+		}
+
 		const response = await fetch(`${API_BASE_URL}/track/all/`)
 		await handleErrors(response)
-		return response.json()
+		const data = await response.json()
+		cacheData('allTracks', data)
+		return data
 	} catch (error) {
 		console.error('Ошибка при получении всех треков:', error)
 		throw error

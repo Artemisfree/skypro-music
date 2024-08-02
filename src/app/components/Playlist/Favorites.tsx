@@ -10,7 +10,11 @@ import {
 	updateCurrentTime,
 	setPlayingState,
 } from '@/store/features/currentTrackSlice'
-import { setTracks, removeTrack, updateTrackLikeStatus } from '@/store/features/playlistSlice'
+import {
+	setTracks,
+	removeTrack,
+	updateTrackLikeStatus,
+} from '@/store/features/playlistSlice'
 import { getAllFavoriteTracks, removeTrackFromFavorites } from '@/app/api'
 
 const Favorites: React.FC = () => {
@@ -21,16 +25,12 @@ const Favorites: React.FC = () => {
 		(state: RootState) => state.currentTrack
 	)
 	const { tracks } = useSelector((state: RootState) => state.playlist)
-	
 	const audioRef = useRef<HTMLAudioElement>(null)
 
-	const getAccessToken = (): string | null => {
-		return localStorage.getItem('accessToken')
-	}
-
-	const getRefreshToken = (): string | null => {
-		return localStorage.getItem('refreshToken')
-	}
+	const getAccessToken = (): string | null =>
+		localStorage.getItem('accessToken')
+	const getRefreshToken = (): string | null =>
+		localStorage.getItem('refreshToken')
 
 	useEffect(() => {
 		const fetchFavoriteTracks = async () => {
@@ -43,8 +43,7 @@ const Favorites: React.FC = () => {
 
 			try {
 				const response = await getAllFavoriteTracks(accessToken, refreshToken)
-				const favorites = response.data
-				dispatch(setTracks(favorites))
+				dispatch(setTracks(response.data))
 			} catch (error) {
 				setError(
 					'Не удалось загрузить избранные треки. Пожалуйста, попробуйте позже.'
@@ -83,6 +82,7 @@ const Favorites: React.FC = () => {
 		if (currentTrack?._id === track._id) {
 			dispatch(setCurrentTrack(updatedTrack))
 		}
+
 		setLoading(true)
 		try {
 			await removeTrackFromFavorites(track._id, accessToken, refreshToken)
@@ -127,7 +127,9 @@ const Favorites: React.FC = () => {
 			if (audioRef.current) {
 				audioRef.current.currentTime = time
 				if (playing) {
-					audioRef.current.play()
+					audioRef.current.play().catch(error => {
+						console.error('Error playing audio:', error)
+					})
 				}
 			}
 		}
@@ -173,7 +175,7 @@ const Favorites: React.FC = () => {
 				</div>
 			</div>
 			<div className={styles.content__playlist}>
-				{Array.isArray(tracks) &&
+				{Array.isArray(tracks) && tracks.length > 0 ? (
 					tracks.map(track => (
 						<div
 							className={`${styles.playlist__track} ${
@@ -225,7 +227,10 @@ const Favorites: React.FC = () => {
 								</span>
 							</div>
 						</div>
-					))}
+					))
+				) : (
+					<div className={styles.noTracksFound}>Треки не найдены</div>
+				)}
 			</div>
 		</div>
 	)
