@@ -60,9 +60,8 @@ export async function fetchWithAuth(
 			res = await fetch(url, options)
 		} catch (error) {
 			console.error('Token refresh failed:', error)
-			// Очистка токенов и редирект на страницу логина
 			logoutUser()
-			window.location.href = '/login' // или любой другой путь к странице логина
+			window.location.href = '/signin'
 			throw new Error('Token refresh failed')
 		}
 	}

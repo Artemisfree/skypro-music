@@ -150,22 +150,23 @@ const Playlist: React.FC<PlaylistProps> = ({ playlistId, tracks }) => {
 	}, [dispatch, playlistId])
 
 	useEffect(() => {
-		console.log('Треки с состоянием лайка:', playlistTracks)
 	}, [playlistTracks])
 
 	const filteredTracks = useMemo(() => {
-		return playlistTracks.filter(track => {
-			const matchesGenre =
-				activeGenres.length === 0 ||
-				track.genre.some(genre => activeGenres.includes(genre))
-			const matchesAuthor =
-				activeAuthors.length === 0 || activeAuthors.includes(track.author)
-			const matchesSearch =
-				!searchKeyword ||
-				track.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-				track.author.toLowerCase().includes(searchKeyword.toLowerCase())
-			return matchesGenre && matchesAuthor && matchesSearch
-		})
+		return Array.isArray(playlistTracks)
+			? playlistTracks.filter(track => {
+					const matchesGenre =
+						activeGenres.length === 0 ||
+						track.genre.some(genre => activeGenres.includes(genre))
+					const matchesAuthor =
+						activeAuthors.length === 0 || activeAuthors.includes(track.author)
+					const matchesSearch =
+						!searchKeyword ||
+						track.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+						track.author.toLowerCase().includes(searchKeyword.toLowerCase())
+					return matchesGenre && matchesAuthor && matchesSearch
+			  })
+			: []
 	}, [playlistTracks, activeGenres, activeAuthors, searchKeyword])
 
 	const sortedTracks = useMemo(() => {

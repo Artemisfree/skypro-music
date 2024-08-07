@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
@@ -9,7 +11,7 @@ import {
 import styles from './Player.module.css'
 import { Track } from '@/types/types'
 import { addTrackToFavorites, removeTrackFromFavorites } from '../../../api/api'
-import { updateTrackLikeStatus } from '@/store/features/playlistSlice' // Добавлен импорт
+import { updateTrackLikeStatus } from '@/store/features/playlistSlice'
 
 const Modal: React.FC<{ message: string; onClose: () => void }> = ({
 	message,
@@ -39,7 +41,7 @@ const Player: React.FC<TrackPlayProps> = ({
 	togglePlay,
 	isShuffle,
 	setIsShuffle,
-	tracks,
+	tracks = [],
 	audioRef,
 }) => {
 	const dispatch = useDispatch()
@@ -50,6 +52,10 @@ const Player: React.FC<TrackPlayProps> = ({
 	const [likedTracks, setLikedTracks] = useState<{ [key: number]: boolean }>({})
 
 	useEffect(() => {
+		if (!Array.isArray(tracks)) {
+			console.error('tracks is not an array:', tracks)
+			return
+		}
 		const initialLikedTracks = tracks.reduce((acc: any, track: Track) => {
 			acc[track._id] = getLikedState(track._id)
 			return acc
@@ -65,19 +71,19 @@ const Player: React.FC<TrackPlayProps> = ({
 		setIsShuffle(!isShuffle)
 	}
 
-	const getNextIndex = (currentIndex: number) => {
+	const getNextIndex = (currentIndex: number): number | null => {
 		if (isShuffle) {
 			return Math.floor(Math.random() * tracks.length)
 		} else {
-			return currentIndex < tracks.length - 1 ? currentIndex + 1 : 0
+			return currentIndex < tracks.length - 1 ? currentIndex + 1 : null;
 		}
 	}
 
-	const getPreviousIndex = (currentIndex: number) => {
+	const getPreviousIndex = (currentIndex: number): number | null => {
 		if (isShuffle) {
 			return Math.floor(Math.random() * tracks.length)
 		} else {
-			return currentIndex > 0 ? currentIndex - 1 : tracks.length - 1
+			return currentIndex > 0 ? currentIndex - 1 : null
 		}
 	}
 

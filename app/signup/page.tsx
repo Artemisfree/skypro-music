@@ -22,7 +22,6 @@ const SignUp = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if (isSubmitting) {
-			console.log('Форма отправляется, пожалуйста подождите')
 			return
 		}
 

@@ -7,7 +7,6 @@ const TracksPage: React.FC = async () => {
     const title = 'Треки'
 
     const response = await getAllTracks()
-    console.log('Дернул треки на странице')
 
 	return (
 		<>
