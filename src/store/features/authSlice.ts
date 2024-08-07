@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
-import { TokenResponse, loginUser, refreshToken, registerUser } from '@/app/api'
+import { TokenResponse, loginUser, refreshToken, registerUser } from '../../../api/api'
 
 interface AuthState {
 	accessToken: string | null
@@ -18,7 +18,7 @@ const initialState: AuthState = {
 }
 
 export const login = createAsyncThunk(
-	'auth/login',
+	'auth/signin',
 	async ({ email, password }: { email: string; password: string }) => {
 		const response = await loginUser(email, password)
 		return response
@@ -26,7 +26,7 @@ export const login = createAsyncThunk(
 )
 
 export const register = createAsyncThunk(
-	'auth/register',
+	'auth/signup',
 	async ({
 		email,
 		password,
@@ -43,8 +43,8 @@ export const register = createAsyncThunk(
 
 export const refreshAuthToken = createAsyncThunk(
 	'auth/refreshToken',
-	async (refresh: string) => {
-		const response = await refreshToken(refresh)
+	async () => {
+		const response = await refreshToken()
 		return response
 	}
 )
