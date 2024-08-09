@@ -18,23 +18,6 @@ const PlaylistPage: React.FC = () => {
 	const [tracks, setTracks] = useState([])
 	const [loading, setLoading] = useState(true)
 
-	useEffect(() => {
-		if (!id) return
-
-		const fetchData = async () => {
-			try {
-				const response = await getSelectionById(Number(id))
-				setTracks(response.data)
-			} catch (error) {
-				console.error('Error fetching playlist:', error)
-			} finally {
-				setLoading(false)
-			}
-		}
-
-		fetchData()
-	}, [id])
-
 	const title = playlistTitles[id as keyof typeof playlistTitles]
 
 	return (

@@ -56,10 +56,13 @@ const Player: React.FC<TrackPlayProps> = ({
 			console.error('tracks is not an array:', tracks)
 			return
 		}
-		const initialLikedTracks = tracks.reduce((acc: any, track: Track) => {
-			acc[track._id] = getLikedState(track._id)
-			return acc
-		}, {})
+		const initialLikedTracks = tracks.reduce(
+			(acc: { [key: number]: boolean }, track: Track) => {
+				acc[track._id] = getLikedState(track._id)
+				return acc
+			},
+			{}
+		)
 		setLikedTracks(initialLikedTracks)
 	}, [tracks])
 

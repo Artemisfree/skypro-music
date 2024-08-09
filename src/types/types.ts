@@ -1,5 +1,4 @@
 export interface Track {
-	staredUser: any
 	_id: number
 	album: string
 	author: string

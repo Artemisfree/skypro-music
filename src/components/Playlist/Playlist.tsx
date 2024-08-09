@@ -135,7 +135,7 @@ const Playlist: React.FC<PlaylistProps> = ({ playlistId, tracks }) => {
 				}
 				dispatch(setTracks(allTracks))
 				const initialLikedTracks = allTracks.reduce(
-					(acc: any, track: Track) => {
+					(acc: { [key: number]: boolean }, track: Track) => {
 						acc[track._id] = getLikedState(track._id)
 						return acc
 					},

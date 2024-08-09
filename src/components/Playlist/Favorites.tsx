@@ -30,10 +30,13 @@ const Favorites: React.FC<FavoritesProps> = ({ tracks }) => {
 
 	useEffect(() => {
 		dispatch(setTracks(tracks))
-		const initialLikedTracks = tracks.reduce((acc: any, track: Track) => {
-			acc[track._id] = getLikedState(track._id)
-			return acc
-		}, {})
+		const initialLikedTracks = tracks.reduce(
+			(acc: { [key: number]: boolean }, track: Track) => {
+				acc[track._id] = getLikedState(track._id)
+				return acc
+			},
+			{}
+		)
 		setLikedTracks(initialLikedTracks)
 		setFavoriteTracks(tracks.filter(track => getLikedState(track._id)))
 	}, [tracks, dispatch])
