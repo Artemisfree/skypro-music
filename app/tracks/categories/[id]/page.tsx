@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Playlist from '@/components/Playlist/Playlist'
-import { getSelectionById } from '../../../../api/api'
 import Filter from '@/components/Filter/Filter'
+import { useSelector } from 'react-redux'
 
 const PlaylistPage: React.FC = () => {
 	const playlistTitles = {
@@ -14,9 +14,7 @@ const PlaylistPage: React.FC = () => {
 	}
 
 	const { id } = useParams()
-
 	const [tracks, setTracks] = useState([])
-	const [loading, setLoading] = useState(true)
 
 	const title = playlistTitles[id as keyof typeof playlistTitles]
 

@@ -116,19 +116,18 @@ const Playlist: React.FC<PlaylistProps> = ({ playlistId, tracks }) => {
 				let allTracks: Track[] = []
 				if (playlistId) {
 					const selection = await getSelectionById(playlistId)
-					const trackPromises = selection.data.items.map((id: number) =>
-						getTrackById(id)
-					)
-					const playlistTracksResponses = await Promise.all(trackPromises)
-					allTracks = playlistTracksResponses
-						.map(response => response.data)
+					const selectedTrackIds = selection.data.items
+
+					const allAvailableTracks = await getAllTracks()
+					allTracks = allAvailableTracks.data
+						.filter((track: Track) => selectedTrackIds.includes(track._id))
 						.map((track: Track) => ({
 							...track,
 							isLiked: getLikedState(track._id),
 						}))
+					console.log(allTracks)
 				} else {
-					const response = await getAllTracks()
-					allTracks = response.data.map((track: Track) => ({
+					allTracks = tracks.map((track: Track) => ({
 						...track,
 						isLiked: getLikedState(track._id),
 					}))
@@ -147,10 +146,9 @@ const Playlist: React.FC<PlaylistProps> = ({ playlistId, tracks }) => {
 			}
 		}
 		fetchTracks()
-	}, [dispatch, playlistId])
+	}, [dispatch, playlistId, tracks])
 
-	useEffect(() => {
-	}, [playlistTracks])
+	useEffect(() => {}, [playlistTracks])
 
 	const filteredTracks = useMemo(() => {
 		return Array.isArray(playlistTracks)
@@ -294,9 +292,9 @@ const Playlist: React.FC<PlaylistProps> = ({ playlistId, tracks }) => {
 										</span>
 									</>
 								) : (
-									<svg className={styles.track__time_svg}>
-										<use href='/img/icon/sprite.svg#icon-watch'></use>
-									</svg>
+									<span className={styles.track__time_text}>
+										{formatDuration(track.duration_in_seconds)}
+									</span>
 								)}
 							</div>
 						</div>
