@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Filter component renders correctly and matches snapshot 1`] = `
+<div
+  className="centerblock__filter"
+>
+  <div
+    className="filter__title"
+  >
+    Искать по:
+  </div>
+  <div
+    className="filter__button "
+    onClick={[Function]}
+  >
+    исполнителю
+  </div>
+  <div
+    className="filter__button "
+    onClick={[Function]}
+  >
+    дате выпуска
+  </div>
+  <div
+    className="filter__button "
+    onClick={[Function]}
+  >
+    жанру
+  </div>
+</div>
+`;

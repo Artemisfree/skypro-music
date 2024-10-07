@@ -1,0 +1,137 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Player component renders correctly and matches snapshot 1`] = `
+<div
+  className="bar__player"
+>
+  <div
+    className="player__controls"
+  >
+    <div
+      className="player__btn_prev"
+      onClick={[Function]}
+    >
+      <svg
+        className="player__btn_prev_svg"
+      >
+        <use
+          xlinkHref="/img/icon/sprite.svg#icon-prev"
+        />
+      </svg>
+    </div>
+    <div
+      className="player__btn_play _btn"
+      onClick={[MockFunction]}
+    >
+      <svg
+        className="player__btn_play_svg"
+      >
+        <use
+          xlinkHref="/img/icon/sprite.svg#icon-play"
+        />
+      </svg>
+    </div>
+    <div
+      className="player__btn_next"
+      onClick={[Function]}
+    >
+      <svg
+        className="player__btn_next_svg"
+      >
+        <use
+          xlinkHref="/img/icon/sprite.svg#icon-next"
+        />
+      </svg>
+    </div>
+    <div
+      className="player__btn_repeat _btn-icon "
+      onClick={[Function]}
+    >
+      <svg
+        className="player__btn_repeat_svg"
+      >
+        <use
+          xlinkHref="img/icon/sprite.svg#icon-repeat"
+        />
+      </svg>
+    </div>
+    <div
+      className="player__btn_shuffle _btn-icon "
+      onClick={[Function]}
+    >
+      <svg
+        className="player__btn_shuffle_svg"
+      >
+        <use
+          xlinkHref="img/icon/sprite.svg#icon-shuffle"
+        />
+      </svg>
+    </div>
+  </div>
+  <div
+    className="player__track_play"
+  >
+    <div
+      className="track_play__contain"
+    >
+      <div
+        className="track_play__image"
+      >
+        <svg
+          className="track_play__svg"
+        >
+          <use
+            xlinkHref="/img/icon/sprite.svg#icon-note"
+          />
+        </svg>
+      </div>
+      <div
+        className="track_play__author"
+      >
+        <a
+          className="track_play__author_link"
+          href="http://"
+        >
+          Трек не выбран
+        </a>
+      </div>
+      <div
+        className="track_play__album"
+      >
+        <a
+          className="track_play__album_link"
+          href="http://"
+        />
+      </div>
+    </div>
+    <div
+      className="track_play__like_dis"
+    >
+      <div
+        className="track_play__like _btn-icon"
+        onClick={[Function]}
+      >
+        <svg
+          className="track_play__like_svg"
+        >
+          <use
+            xlinkHref="img/icon/sprite.svg#icon-like"
+          />
+        </svg>
+      </div>
+      <div
+        className="track_play__dislike _btn-icon"
+        onClick={[Function]}
+      >
+        <svg
+          className="track_play__dislike_svg"
+        >
+          <use
+            xlinkHref="/img/icon/sprite.svg#icon-dislike"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;
